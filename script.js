@@ -85,14 +85,18 @@ async function checkUserApproval() {
 
         if (!userDoc.exists) {
             // Criar registro inicial
-            await db.collection('users').doc(currentUser.uid).set({
+            const initialData = {
                 name: currentUser.displayName || "Usuário",
                 email: (currentUser.email || "").toLowerCase(),
                 photo: currentUser.photoURL || "",
                 approved: isMasterAdmin ? true : false,
                 isAdmin: isMasterAdmin,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                progress: {}
+            };
+            await db.collection('users').doc(currentUser.uid).set(initialData);
+            
+            sessionStatus = {};
             sessionStorage.setItem('isAdmin', isMasterAdmin);
             return isMasterAdmin;
         }
@@ -100,6 +104,15 @@ async function checkUserApproval() {
         const data = userDoc.data();
         const approved = data.approved === true;
         const isAdmin = data.isAdmin === true || isMasterAdmin;
+
+        // CARREGAMENTO CRÍTICO: Carregar progresso já no check de aprovação
+        if (data.progress) {
+            sessionStatus = data.progress;
+            // Sincronizar cache local imediatamente
+            localStorage.setItem(`portal_status_${currentUser.uid}`, JSON.stringify(sessionStatus));
+        } else {
+            sessionStatus = {};
+        }
 
         // Sync master admin status if needed
         if (isMasterAdmin && !data.isAdmin) {
@@ -656,8 +669,13 @@ async function nukeAllPosts() {
 }
 
 async function initApp() {
-    loadLocalStatus(); // Carrega imediato do cache local
-    syncProgressFromCloud(); // Busca versão mais recente na nuvem
+    // Progresso já foi carregado no checkUserApproval para ser instantâneo
+    updateProgressUI();
+    
+    // Backup: Se por algum motivo o checkUserApproval não carregou, tentamos sync aqui
+    if (Object.keys(sessionStatus).length === 0) {
+        syncProgressFromCloud();
+    }
 
     // Restaurar aba ativa
     const savedTab = localStorage.getItem('activeTab') || 'feed';
@@ -700,14 +718,27 @@ async function syncProgressFromCloud() {
     }
 }
 
-async function saveLocalStatus() {
+async function saveLocalStatus(specificSlot = null) {
     if (!currentUser) return;
+    
+    // Salvar localmente o estado completo
     localStorage.setItem(`portal_status_${currentUser.uid}`, JSON.stringify(sessionStatus));
     
     try {
-        await db.collection('users').doc(currentUser.uid).set({
-            progress: sessionStatus
-        }, { merge: true });
+        if (specificSlot) {
+            // ATUALIZAÇÃO ATÔMICA: Se um slot específico foi passado, atualiza apenas ele usando dot-notation
+            // Isso evita sobrescrever outros slots caso o estado local esteja incompleto
+            const updateObj = {};
+            updateObj[`progress.${specificSlot}`] = true;
+            await db.collection('users').doc(currentUser.uid).update(updateObj);
+            console.log(`✅ Slot ${specificSlot} salvo na nuvem via update atômico.`);
+        } else {
+            // Fallback: Salvar objeto inteiro (usado no reset por exemplo)
+            await db.collection('users').doc(currentUser.uid).set({
+                progress: sessionStatus
+            }, { merge: true });
+            console.log("✅ Progresso completo sincronizado com a nuvem.");
+        }
     } catch (e) {
         console.error("Erro ao salvar progresso na nuvem:", e);
     }
@@ -784,7 +815,7 @@ async function up(ev, slot, title) {
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
                 sessionStatus[slot] = true;
-                await saveLocalStatus(); // Agora é assíncrono para garantir o save no Firestore
+                await saveLocalStatus(slot); // Passando o slot para update atômico
                 updateProgressUI();
 
                 showCongratsPopup(title);
