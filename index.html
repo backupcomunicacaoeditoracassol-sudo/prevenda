@@ -72,14 +72,14 @@
                     <input type="password" id="loginPass" placeholder="Senha">
                     <button onclick="handleEmailLogin()" class="btn-primary">Entrar</button>
 
-                    <!-- Bloco de Instalação Inline -->
+                    <div class="auth-footer">
+                        Não tem conta? <span onclick="toggleAuth('register')">Cadastre-se</span>
+                    </div>
+
+                    <!-- Bloco de Instalação no Fim -->
                     <div id="authInstallBlock" class="auth-install-inline" style="display: none;">
                         <p>✨ Para uma melhor experiência:</p>
                         <button onclick="handleInstallClick()" class="btn-install-mini">📲 Instalar Portal no Celular</button>
-                    </div>
-
-                    <div class="auth-footer">
-                        Não tem conta? <span onclick="toggleAuth('register')">Cadastre-se</span>
                     </div>
                 </div>
 
@@ -90,7 +90,11 @@
                     <input type="password" id="regPass" placeholder="Senha">
                     <button onclick="handleEmailRegister()" class="btn-primary">Criar Conta</button>
 
-                    <!-- Mesmo bloco para o cadastro -->
+                    <div class="auth-footer">
+                        Já tem conta? <span onclick="toggleAuth('login')">Fazer Login</span>
+                    </div>
+
+                    <!-- Bloco de Instalação no Fim -->
                     <div id="authInstallBlockReg" class="auth-install-inline" style="display: none;">
                         <p>✨ Para uma melhor experiência:</p>
                         <button onclick="handleInstallClick()" class="btn-install-mini">📲 Instalar Portal no Celular</button>
@@ -103,10 +107,6 @@
                             alt="Google">
                         Cadastrar com Google
                     </button>
-
-                    <div class="auth-footer">
-                        Já tem conta? <span onclick="toggleAuth('login')">Fazer Login</span>
-                    </div>
                 </div>  </div>
         </div>
     </div>
