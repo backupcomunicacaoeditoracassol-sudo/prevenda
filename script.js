@@ -1080,8 +1080,8 @@ async function registerPushNotifications() {
     }
 
     try {
-        // Registrar o Service Worker
-        const reg = await navigator.serviceWorker.register('/sw.js');
+        // Registrar o Service Worker com o caminho correto para GitHub Pages
+        const reg = await navigator.serviceWorker.register('/prevenda/sw.js', { scope: '/prevenda/' });
         console.log('Service Worker registrado:', reg.scope);
 
         // Solicitar permissão
