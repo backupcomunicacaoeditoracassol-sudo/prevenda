@@ -111,7 +111,7 @@ body {
     padding: 80px;
     color: #fff;
     position: relative;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
     text-align: center;
 }
 
@@ -181,7 +181,7 @@ body {
     width: 100%;
     padding: 16px 20px;
     margin-bottom: 15px;
-    border: 1px solid rgba(138, 14, 13, 0.35);
+    border: 1px solid rgba(138, 14, 13, 0.6);
     border-radius: var(--radius-md);
     font-size: 1rem;
     background: #FFF;
@@ -280,8 +280,9 @@ body {
     border-radius: var(--radius-lg);
     margin-bottom: 35px;
     text-align: center;
-    border: 1px solid rgba(138, 14, 13, 0.25);
-    box-shadow: 0 15px 35px rgba(138, 14, 13, 0.08);
+    border: 1.5px solid rgba(138, 14, 13, 0.6);
+    background: #FFF9F9;
+    box-shadow: 0 15px 35px rgba(138, 14, 13, 0.1);
     position: relative;
     overflow: hidden;
 }
@@ -330,9 +331,10 @@ body {
 
 .auth-install-tip .divider {
     margin: 20px 0 0 0;
-    font-size: 0.75rem;
-    opacity: 0.9;
+    font-size: 0.85rem;
+    opacity: 1;
     color: var(--accent);
+    font-weight: 700;
 }
 
 /* APP SHELL */
