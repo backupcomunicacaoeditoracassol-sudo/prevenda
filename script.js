@@ -1077,25 +1077,27 @@ async function loadUsersForAdmin() {
                 '<span style="color:orange; font-weight:bold;">Pendente</span>';
 
             return `
-                <div class="feed-card" style="padding: 25px; display: flex; align-items: center; gap: 15px; background: var(--card-bg); color: #FFFFFF;">
-                    <img src="${u.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);" referrerpolicy="no-referrer">
-                    <div style="flex: 1;">
-                        <h4 style="margin:0; font-family: var(--font-title); font-size: 1.2rem; color: #FFFFFF;">${u.name} ${u.isAdmin ? '⭐' : ''}</h4>
-                        <p style="margin:0; font-size: 0.9rem; color: rgba(255,255,255,0.8);">${u.email}</p>
-                        <p style="margin:5px 0 0; font-size: 0.9rem; color: #FFFFFF;">Status: ${status}</p>
+                <div class="feed-card admin-user-card">
+                    <div class="user-main-info">
+                        <img src="${u.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="user-avatar-admin" referrerpolicy="no-referrer">
+                        <div class="user-details">
+                            <h4>${u.name} ${u.isAdmin ? '⭐' : ''}</h4>
+                            <p class="user-email">${u.email}</p>
+                            <p class="user-status">Status: ${status}</p>
+                        </div>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="user-actions">
                         ${u.approved ?
-                    `<button onclick="setApproval('${id}', false)" class="btn-secondary" style="font-size: 0.7rem; color: red; border-color: red; padding: 5px 10px;">Bloquear</button>` :
-                    `<button onclick="setApproval('${id}', true)" class="btn-primary" style="font-size: 0.7rem; width: auto; padding: 5px 15px;">Aprovar</button>`
+                    `<button onclick="setApproval('${id}', false)" class="btn-secondary btn-small btn-danger-text">Bloquear</button>` :
+                    `<button onclick="setApproval('${id}', true)" class="btn-primary btn-small">Aprovar</button>`
                 }
                         <button onclick="toggleAdminRole('${id}', ${u.isAdmin || false})" 
-                            class="btn-secondary" 
-                            style="font-size: 0.7rem; padding: 5px 10px; ${id === currentUser.uid || isUserAdmin({ email: u.email }) ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                            class="btn-secondary btn-small" 
+                            ${id === currentUser.uid || isUserAdmin({ email: u.email }) ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>
                             ${u.isAdmin ? 'Remover Admin' : 'Tornar Admin'}
                         </button>
                         ${id !== currentUser.uid && !isUserAdmin({ email: u.email }) ?
-                    `<button onclick="deleteUser('${id}')" class="btn-text" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 5px; background: none; border: none; cursor: pointer;">Excluir Usuário</button>` : ''
+                    `<button onclick="deleteUser('${id}')" class="btn-delete-user">Excluir Usuário</button>` : ''
                 }
                     </div>
                 </div>

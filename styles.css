@@ -1620,3 +1620,108 @@ body {
         font-size: 0.9rem;
     }
 }
+
+/* === ADMIN USER MANAGEMENT === */
+.admin-user-card {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    background: var(--card-bg);
+    color: #FFFFFF;
+    margin-bottom: 15px;
+}
+
+.user-main-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.user-avatar-admin {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-details h4 {
+    margin: 0;
+    font-family: var(--font-title);
+    font-size: 1.1rem;
+    color: #FFFFFF;
+}
+
+.user-email {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.user-status {
+    margin: 5px 0 0;
+    font-size: 0.85rem;
+    color: #FFFFFF;
+}
+
+.user-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.btn-small {
+    font-size: 0.75rem !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+}
+
+.btn-danger-text {
+    color: #ff4d4d !important;
+    border-color: #ff4d4d !important;
+}
+
+.btn-delete-user {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 5px;
+}
+
+/* Mobile Adjustments for Admin Cards */
+@media (max-width: 600px) {
+    .admin-user-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .user-main-info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .user-actions {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .user-actions button {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .btn-delete-user {
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
+}
