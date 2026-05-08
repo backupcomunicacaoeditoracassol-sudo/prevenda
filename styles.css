@@ -20,13 +20,17 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
 body {
     background-color: var(--bg-color);
     background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
     color: var(--text-main);
     font-family: var(--font-body);
     line-height: 1.6;
-    overflow-x: hidden;
 }
 
 /* AUTH OVERHAUL */
@@ -214,8 +218,10 @@ body {
     backdrop-filter: blur(10px);
     padding: 15px 25px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: 100%;
     z-index: 1000;
 }
 
@@ -271,8 +277,10 @@ body {
     justify-content: center;
     background: #fff;
     border-bottom: 1px solid #EEE;
-    position: sticky;
+    position: fixed;
     top: 71px;
+    left: 0;
+    width: 100%;
     z-index: 999;
 }
 
@@ -327,7 +335,7 @@ body {
 .container {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 40px 20px 100px;
+    padding: 160px 20px 100px;
 }
 
 .view {
@@ -981,8 +989,8 @@ body {
     }
 
     .tab-nav {
-        position: sticky;
-        top: 53px; /* Altura do header novo (32px img + 20px padding + 1px border) */
+        position: fixed;
+        top: 53px; 
         bottom: auto;
         width: 100%;
         background: #fff;
@@ -1001,7 +1009,11 @@ body {
         font-size: 1rem;
     }
 
-    .container { padding: 20px 15px 40px; }
+    .container { padding: 130px 15px 40px; }
+    
+    input, textarea, select {
+        font-size: 16px !important;
+    }
     
     .internal-progress-section { 
         padding: 25px 15px; 
