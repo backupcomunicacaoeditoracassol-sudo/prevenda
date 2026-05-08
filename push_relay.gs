@@ -87,7 +87,7 @@ function sendFCMMessage(token, title, body, icon, accessToken) {
           vibrate: [200, 100, 200]
         },
         fcmOptions: {
-          link: 'https://portal-das-escritoras.web.app'
+          link: 'https://backupcomunicacaoeditoracassol-sudo.github.io/prevenda/'
         }
       }
     }
