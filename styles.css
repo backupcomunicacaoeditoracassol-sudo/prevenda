@@ -222,14 +222,16 @@ body {
 }
 
 .divider {
-    margin: 30px 0;
-    color: #CCC;
+    margin: 25px 0;
+    color: var(--accent);
     display: flex;
     align-items: center;
     gap: 15px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    opacity: 0.8;
 }
 
 .divider::before, .divider::after {
@@ -1428,42 +1430,30 @@ body {
     0%, 100% { box-shadow: 0 0 0 0 rgba(179, 19, 18, 0.4); }
     50%       { box-shadow: 0 0 0 6px rgba(179, 19, 18, 0); }
 }
-.auth-install-corner {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #FFFFFF;
+.auth-install-inline {
+    background: #FFF9F9;
     padding: 15px;
-    border-radius: 20px;
-    border: 1.5px solid rgba(138, 14, 13, 0.6);
-    box-shadow: 0 10px 30px rgba(138, 14, 13, 0.15);
-    z-index: 2500;
-    max-width: 180px;
+    border-radius: 15px;
+    margin-top: 20px;
     text-align: center;
-    animation: slideInCorner 0.5s ease-out;
+    border: 1px solid rgba(138, 14, 13, 0.4);
 }
 
-@keyframes slideInCorner {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.auth-install-corner p {
-    font-size: 0.75rem;
+.auth-install-inline p {
+    font-size: 0.8rem;
     font-weight: 800;
     color: var(--accent);
     margin-bottom: 8px;
-    line-height: 1.2;
 }
 
 .btn-install-mini {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     background: var(--accent-gradient);
     color: #fff;
     border: none;
-    border-radius: 10px;
-    font-size: 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
     font-weight: 700;
     cursor: pointer;
 }

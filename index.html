@@ -72,6 +72,12 @@
                     <input type="password" id="loginPass" placeholder="Senha">
                     <button onclick="handleEmailLogin()" class="btn-primary">Entrar</button>
 
+                    <!-- Bloco de Instalação Inline -->
+                    <div id="authInstallBlock" class="auth-install-inline" style="display: none;">
+                        <p>✨ Para uma melhor experiência:</p>
+                        <button onclick="handleInstallClick()" class="btn-install-mini">📲 Instalar Portal no Celular</button>
+                    </div>
+
                     <div class="auth-footer">
                         Não tem conta? <span onclick="toggleAuth('register')">Cadastre-se</span>
                     </div>
@@ -84,6 +90,12 @@
                     <input type="password" id="regPass" placeholder="Senha">
                     <button onclick="handleEmailRegister()" class="btn-primary">Criar Conta</button>
 
+                    <!-- Mesmo bloco para o cadastro -->
+                    <div id="authInstallBlockReg" class="auth-install-inline" style="display: none;">
+                        <p>✨ Para uma melhor experiência:</p>
+                        <button onclick="handleInstallClick()" class="btn-install-mini">📲 Instalar Portal no Celular</button>
+                    </div>
+
                     <div class="divider">ou</div>
 
                     <button onclick="handleGoogleLogin()" class="btn-google">
@@ -95,12 +107,6 @@
                     <div class="auth-footer">
                         Já tem conta? <span onclick="toggleAuth('login')">Fazer Login</span>
                     </div>
-                </div>
-
-                <!-- Bloco de Instalação Reposicionado -->
-                <div id="authInstallBlock" class="auth-install-corner" style="display: none;">
-                    <p>✨ Instale o App no Celular</p>
-                    <button onclick="handleInstallClick()" class="btn-install-mini">📲 Instalar</button>
                 </div>  </div>
         </div>
     </div>
