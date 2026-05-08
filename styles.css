@@ -270,11 +270,13 @@ body {
     top: 0;
     left: 0;
     width: 100%;
+    height: 70px;
     z-index: 1000;
 }
 
 .header-content {
     max-width: 1200px;
+    height: 100%;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -326,9 +328,10 @@ body {
     background: #fff;
     border-bottom: 1px solid #EEE;
     position: fixed;
-    top: 71px;
+    top: 70px;
     left: 0;
     width: 100%;
+    height: 60px;
     z-index: 999;
 }
 
@@ -1029,7 +1032,8 @@ body {
 
 @media (max-width: 600px) {
     .main-header {
-        padding: 10px 15px;
+        height: 60px;
+        padding: 0 15px;
     }
     
     .user-profile img {
@@ -1038,7 +1042,11 @@ body {
     }
     
     .logo {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 50vw;
     }
 
     .header-content {
@@ -1049,11 +1057,28 @@ body {
         display: none;
     }
 
+    #notifPermBtn {
+        font-size: 0 !important;
+        padding: 0 !important;
+        width: 32px;
+        height: 32px;
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50% !important;
+    }
+    
+    #notifPermBtn::before {
+        content: "🔔";
+        font-size: 1.1rem;
+    }
+
     .tab-nav {
         position: fixed;
-        top: 53px; 
+        top: 60px; 
         bottom: auto;
         width: 100%;
+        height: 55px;
         background: #fff;
         border-top: none;
         padding-bottom: 0;
