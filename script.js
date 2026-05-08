@@ -469,7 +469,7 @@ async function loadFeed() {
                             </div>
                         ` : ''}
                     </div>
-                    ${post.title ? `<h3 class="post-title" style="margin: 0 0 8px 0; padding: 0 25px; font-family: var(--font-title); font-size: 1.2rem; color: #111;">${post.title}</h3>` : ''}
+                    ${post.title ? `<h3 class="post-title" style="margin: 0 0 8px 0; padding: 0 25px; font-family: var(--font-title); font-size: 1.2rem; color: var(--text-main);">${post.title}</h3>` : ''}
                     <div class="post-content">${post.content}</div>
                     ${(() => {
                     if (!post.imageUrl) return "";
