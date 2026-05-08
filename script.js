@@ -41,6 +41,7 @@ const BRIDGE_URL = "https://script.google.com/macros/s/AKfycbzmA2YS4fUM22Se2U7FP
 
 let currentUser = null;
 let sessionStatus = {};
+let editingPostId = null;
 
 // --- AUTH LOGIC ---
 
@@ -392,7 +393,12 @@ async function createPost() {
         loadFeed();
     } catch (error) {
         console.error("Error creating/editing post:", error);
-        alert("Erro ao salvar. A imagem pode ser muito grande.");
+        const msg = error.message || error.toString();
+        if (msg.includes('bytes') || msg.includes('size') || msg.includes('RESOURCE_EXHAUSTED')) {
+            alert("Erro: A imagem é muito grande mesmo após compressão. Tente uma foto menor.");
+        } else {
+            alert("Erro ao publicar: " + msg);
+        }
     } finally {
         btn.disabled = false;
         btn.innerText = "Publicar";
