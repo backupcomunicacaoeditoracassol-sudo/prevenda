@@ -1172,6 +1172,16 @@ function checkPushNotificationState() {
         return;
     }
 
+    // Se já estiver instalado (Standalone), sumir com o botão conforme pedido
+    if (isStandalone()) {
+        btn.style.display = 'none';
+        if (Notification.permission === 'granted') {
+            registerPushToken();
+            setupForegroundMessages();
+        }
+        return;
+    }
+
     // Permissão ainda não decidida ("default") — mostrar botão
     btn.innerHTML = '🔔 Ativar Notificações';
     btn.style.display = 'flex';
