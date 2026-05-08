@@ -1,5 +1,5 @@
 :root {
-    --bg-color: #F0EFEB;
+    --bg-color: #E5E0D8;
     --card-bg: #FFFFFF;
     --text-main: #1A1A1A;
     --text-muted: #666666;
@@ -8,7 +8,6 @@
     --accent-gradient: linear-gradient(135deg, #B31312 0%, #E63946 100%);
     --font-title: 'Yeseva One', serif;
     --font-body: 'Outfit', sans-serif;
-    --font-handwriting: 'Caveat', cursive;
     --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.08);
     --shadow-bold: 0 20px 40px rgba(179, 19, 18, 0.12);
 }
@@ -27,7 +26,6 @@ html, body {
 
 body {
     background-color: var(--bg-color);
-    background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
     color: var(--text-main);
     font-family: var(--font-body);
     line-height: 1.6;
@@ -91,7 +89,6 @@ body {
     width: 100%;
     height: 100%;
     background: var(--bg-color);
-    background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
     z-index: 2000;
     display: flex;
     overflow: hidden;
@@ -126,8 +123,9 @@ body {
 }
 
 .auth-sidebar p {
-    font-family: var(--font-handwriting);
-    font-size: 2rem;
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    font-weight: 300;
     opacity: 0.9;
 }
 
@@ -803,11 +801,11 @@ body {
 }
 
 .progress-title {
-    font-family: var(--font-handwriting);
-    font-size: 2.8rem;
-    color: #333;
+    font-family: var(--font-title);
+    font-size: 2.5rem;
+    color: #1a1a1a;
     margin-bottom: 20px;
-    line-height: 1;
+    line-height: 1.2;
 }
 
 .main-progress-container {
