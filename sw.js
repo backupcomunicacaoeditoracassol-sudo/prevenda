@@ -20,7 +20,7 @@ messaging.onBackgroundMessage((payload) => {
     const { title, body, icon } = payload.notification || {};
     
     // O iOS exige que o Service Worker retorne a Promise, senão ele "mata" o processo antes de exibir a notificação
-    return self.registration.showNotification(title || '📝 Portal das Escritoras', {
+    return self.registration.showNotification(title || '✨ Portal das Escritoras', {
         body: body || 'Nova publicação no feed!',
         icon: icon || 'https://ui-avatars.com/api/?name=Portal&background=B31312&color=fff&size=192',
         badge: 'https://ui-avatars.com/api/?name=PE&background=B31312&color=fff&size=72',
