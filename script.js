@@ -36,6 +36,9 @@ document.addEventListener('change', e => {
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Forçar persistência local para evitar perda de estado em PWAs e navegadores móveis
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
 // Google Apps Script for Uploads
 const BRIDGE_URL = "https://script.google.com/macros/s/AKfycbzmA2YS4fUM22Se2U7FPwAeSbFIFYLA_Er9sfVoWD5JVkBy-92va3Id9fDsdt0TuXxL/exec";
 
@@ -217,6 +220,7 @@ async function handleGoogleLogin() {
 
     const provider = new firebase.auth.GoogleAuthProvider();
     try {
+        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
         await auth.signInWithPopup(provider);
     } catch (error) {
         console.error("Erro Google Login:", error);
