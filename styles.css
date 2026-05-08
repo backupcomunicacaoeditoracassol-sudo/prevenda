@@ -1020,8 +1020,13 @@ body {
 .btn-text:hover { color: #888; }
 
 /* RESPONSIVE */
+.mobile-auth-header {
+    display: none;
+}
+
 @media (max-width: 900px) {
     .auth-sidebar { display: none; }
+    .mobile-auth-header { display: block; }
 }
 
 @media (max-width: 600px) {
@@ -1036,6 +1041,14 @@ body {
     
     .logo {
         font-size: 1.3rem;
+    }
+
+    .header-content {
+        flex-wrap: nowrap;
+    }
+
+    #userName {
+        display: none;
     }
 
     .tab-nav {
