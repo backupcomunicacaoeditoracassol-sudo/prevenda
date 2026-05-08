@@ -356,8 +356,11 @@ async function createPost() {
             });
 
             // Enviar push via Apps Script relay
+            const pushTitle = postTitle ? `📝 ${postTitle}` : '📝 Nova publicação!';
+            console.log("Enviando push com titulo:", pushTitle);
+            
             sendPushToAll(
-                postTitle ? `📝 ${postTitle}` : '📝 Nova publicação!',
+                pushTitle,
                 `${currentUser.displayName || 'Admin'}: ${content.slice(0, 80)}${content.length > 80 ? '...' : ''}`,
                 currentUser.photoURL || ''
             );
