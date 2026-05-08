@@ -507,14 +507,11 @@ body {
     color: #FFF;
 }
 
-#imageNamePreview {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-left: 10px;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+.post-info span {
+    font-size: 0.85rem;
+    color: #FFFFFF;
+    opacity: 0.85;
 }
 
 /* FEED CARDS */
@@ -861,11 +858,13 @@ body {
 
 .main-progress-container {
     width: 100%;
-    height: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    height: 18px;
+    background: #FFFFFF;
     border-radius: 20px;
-    margin: 25px 0;
-    padding: 2px;
+    margin: 30px 0;
+    padding: 4px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.2), 0 0 20px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .main-progress-bar {
@@ -902,6 +901,7 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
     min-height: 400px;
 }
@@ -933,18 +933,24 @@ body {
     font-size: 0.9rem;
 }
 
+.slot-card > * {
+    width: 100%;
+}
+
 .slot-title {
     font-family: var(--font-title);
     font-size: 1.8rem;
     color: var(--text-main);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .slot-desc {
-    color: var(--text-muted);
-    font-size: 0.95rem;
+    color: #FFFFFF;
+    font-size: 1rem;
     margin-bottom: 30px;
     font-style: italic;
+    opacity: 0.9;
+    line-height: 1.4;
 }
 
 .file-label {
@@ -973,10 +979,11 @@ body {
 
 .status-txt {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: #2ecc71;
-    min-height: 1.2rem;
-    margin-bottom: 10px;
+    min-height: 1.5rem;
+    margin-bottom: 15px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .resend-btn {
