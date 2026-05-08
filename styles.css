@@ -101,15 +101,18 @@ body {
 }
 
 .auth-sidebar {
-    flex: 1;
+    flex: 1.2;
     background: var(--accent);
-    background-image: linear-gradient(to bottom, rgba(179, 19, 18, 0.9), rgba(179, 19, 18, 0.9)), url('https://www.transparenttextures.com/patterns/natural-paper.png');
+    background-image: linear-gradient(to bottom, rgba(138, 14, 13, 0.9), rgba(138, 14, 13, 0.9)), url('https://www.transparenttextures.com/patterns/natural-paper.png');
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    padding: 80px;
     color: #fff;
     position: relative;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
 }
 
 .auth-sidebar::after {
@@ -123,16 +126,19 @@ body {
 
 .auth-sidebar h1 {
     font-family: var(--font-title);
-    font-size: 4rem;
-    line-height: 1.1;
-    margin-bottom: 20px;
+    font-size: 3.5rem;
+    line-height: 1;
+    margin-bottom: 25px;
+    letter-spacing: -1px;
 }
 
 .auth-sidebar p {
     font-family: var(--font-body);
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 300;
-    opacity: 0.9;
+    opacity: 0.85;
+    max-width: 400px;
+    line-height: 1.4;
 }
 
 .auth-content {
@@ -1080,6 +1086,27 @@ body {
 /* RESPONSIVE */
 .mobile-auth-header {
     display: none;
+    text-align: center;
+    margin-bottom: 40px;
+    background: var(--accent);
+    padding: 40px 20px;
+    border-radius: 0 0 40px 40px;
+    margin-top: -40px; /* Alinha com o topo da auth-content */
+    box-shadow: 0 10px 30px rgba(138, 14, 13, 0.2);
+}
+
+.mobile-auth-header h1 {
+    font-family: var(--font-title);
+    font-size: 2.4rem;
+    color: #FFFFFF;
+    margin-bottom: 8px;
+    line-height: 1.1;
+}
+
+.mobile-auth-header p {
+    color: rgba(255,255,255,0.9);
+    font-size: 1rem;
+    opacity: 0.8;
 }
 
 @media (max-width: 900px) {
@@ -1189,8 +1216,24 @@ body {
         width: 100%;
     }
 
-    .auth-content { padding: 15px; }
-    .auth-container { max-width: 100%; }
+    .auth-brand {
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    .auth-content { 
+        padding: 40px 20px; 
+        align-items: flex-start; /* Permite scroll se necessário */
+        overflow-y: auto;
+    }
+    .auth-container { 
+        max-width: 100%; 
+        margin: 0 auto;
+    }
+    .mobile-auth-header {
+        margin-left: -20px;
+        margin-right: -20px;
+    }
     
     .post-content {
         padding: 10px 15px 20px;

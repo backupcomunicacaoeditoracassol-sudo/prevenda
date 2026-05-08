@@ -26,8 +26,6 @@
     <!-- CSS -->
     <link rel="stylesheet" href="styles.css">
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -51,9 +49,9 @@
         </div>
         <div class="auth-content">
             <div class="auth-container">
-                <div class="mobile-auth-header" style="text-align: center; margin-bottom: 30px; background: var(--accent); padding: 20px; border-radius: 0 0 20px 20px; margin-top: -40px;">
-                    <h1 style="font-family: var(--font-title); font-size: 2.2rem; color: #FFFFFF;">Portal Pré-Venda</h1>
-                    <p style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">Onde as histórias ganham vida...</p>
+                <div class="mobile-auth-header">
+                    <h1>Portal Pré-Venda</h1>
+                    <p>Onde as histórias ganham vida...</p>
                 </div>
                 <div class="auth-brand">
                     <h2>Bem-vinda</h2>
@@ -233,12 +231,8 @@
                 </div>
             </section>
         </main>
-    </div>
 
-    </div>
-
-
-    <button id="pwaInstallBtn" onclick="handleInstallClick()" class="fixed-install-btn">
+    <button id="pwaInstallBtn" onclick="console.log('Botão clicado!'); handleInstallClick();" class="fixed-install-btn">
         <span class="icon">📲</span>
         <span class="text">Instalar App</span>
     </button>
