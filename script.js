@@ -1201,16 +1201,26 @@ function showGenericInstallGuide() {
     guide.id = 'genericInstallGuide';
     guide.className = 'congrats-overlay';
     guide.style.cssText = 'display:flex; align-items:center; justify-content:center; z-index: 10000;';
+    
+    // Ícone de Menu (Três pontos) do Android
+    const menuIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block; vertical-align:middle;"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg>`;
+
     guide.innerHTML = `
-        <div class="congrats-card" style="max-width: 380px; text-align: center;">
+        <div class="congrats-card" style="max-width: 380px; text-align: center; border-top: 5px solid var(--accent);">
             <div class="congrats-icon" style="font-size: 3.5rem;">📲</div>
-            <h2 style="font-family: var(--font-title); font-size: 1.6rem; margin-bottom: 12px;">Instalar o Portal</h2>
+            <h2 style="font-family: var(--font-title); font-size: 1.6rem; margin-bottom: 12px;">Instalar no Android</h2>
             <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">
-                Para uma experiência completa, adicione o Portal à sua tela inicial:
+                Tenha o Portal sempre à mão na sua tela inicial:
             </p>
-            <div style="text-align: left; background: #f8f8f8; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
-                <p style="font-size: 0.9rem; color: #444; margin-bottom: 10px;"><strong>No Chrome / Edge:</strong></p>
-                <p style="font-size: 0.85rem; color: #666;">Clique nos três pontos (⋮) no canto superior e selecione <strong>"Instalar Aplicativo"</strong> ou <strong>"Salvar e Compartilhar > Instalar"</strong>.</p>
+            <div style="text-align: left; background: #fffafa; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #ffecec;">
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px;">
+                    <span style="font-weight:bold; color:var(--accent); font-size:1.1rem;">1.</span>
+                    <span style="font-size: 0.95rem; color: #444;">Toque no ícone de <strong>Menu</strong> (três pontos ${menuIcon}) no canto superior.</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <span style="font-weight:bold; color:var(--accent); font-size:1.1rem;">2.</span>
+                    <span style="font-size: 0.95rem; color: #444;">Selecione <strong>"Instalar Aplicativo"</strong> ou <strong>"Adicionar à Tela Inicial"</strong>.</span>
+                </div>
             </div>
             <div class="congrats-actions">
                 <button class="btn-primary" onclick="document.getElementById('genericInstallGuide').remove()" style="width: 100%;">Entendi!</button>
@@ -1358,9 +1368,7 @@ function setupForegroundMessages() {
     });
 }
 
-// Guia visual para instalar o PWA no iOS
 function showIOSInstallGuide() {
-    // Remover guia anterior se existir
     const existing = document.getElementById('iosInstallGuide');
     if (existing) existing.remove();
 
@@ -1368,29 +1376,33 @@ function showIOSInstallGuide() {
     guide.id = 'iosInstallGuide';
     guide.className = 'congrats-overlay';
     guide.style.cssText = 'display:flex; align-items:center; justify-content:center; z-index: 10000;';
+    
+    // Ícone de Compartilhar do Safari (SVG Realista)
+    const shareIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin: 0 2px;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>`;
+
     guide.innerHTML = `
-        <div class="congrats-card" style="max-width: 380px; text-align: center;">
+        <div class="congrats-card" style="max-width: 380px; text-align: center; border-top: 5px solid #007AFF;">
             <div class="congrats-icon" style="font-size: 3.5rem;">📲</div>
-            <h2 style="font-family: var(--font-title); font-size: 1.6rem; margin-bottom: 12px;">Instalar o Portal</h2>
+            <h2 style="font-family: var(--font-title); font-size: 1.6rem; margin-bottom: 12px; color: #333;">Instalar no iPhone</h2>
             <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">
-                Para receber notificações no iPhone, você precisa <strong>adicionar o Portal à Tela Inicial</strong>:
+                Para uma experiência de App e receber notificações:
             </p>
-            <div style="text-align: left; background: #f8f8f8; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
-                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
-                    <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">1️⃣</span>
-                    <span style="font-size: 0.9rem; color: #444;">Toque no botão <strong>Compartilhar</strong> (ícone <span style="font-size: 1.2rem;">⬆️</span>) na barra inferior do Safari</span>
+            <div style="text-align: left; background: #f0f7ff; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #cce5ff;">
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px;">
+                    <span style="font-weight:bold; color:#007AFF; font-size:1.1rem;">1.</span>
+                    <span style="font-size: 0.95rem; color: #444;">Toque no ícone de <strong>Compartilhar</strong> ${shareIcon} na barra inferior do Safari.</span>
                 </div>
-                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
-                    <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">2️⃣</span>
-                    <span style="font-size: 0.9rem; color: #444;">Role para baixo e toque em <strong>"Adicionar à Tela Inicial"</strong></span>
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px;">
+                    <span style="font-weight:bold; color:#007AFF; font-size:1.1rem;">2.</span>
+                    <span style="font-size: 0.95rem; color: #444;">Role a lista e toque em <strong>"Adicionar à Tela Inicial"</strong>.</span>
                 </div>
                 <div style="display: flex; align-items: flex-start; gap: 12px;">
-                    <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">3️⃣</span>
-                    <span style="font-size: 0.9rem; color: #444;">Abra o Portal pelo <strong>ícone na Tela Inicial</strong> e toque em <strong>"🔔 Ativar Notificações"</strong></span>
+                    <span style="font-weight:bold; color:#007AFF; font-size:1.1rem;">3.</span>
+                    <span style="font-size: 0.95rem; color: #444;">Abra o ícone na sua tela e <strong>Ative as Notificações</strong>.</span>
                 </div>
             </div>
             <div class="congrats-actions">
-                <button class="btn-primary" onclick="document.getElementById('iosInstallGuide').remove()" style="width: 100%;">Entendi!</button>
+                <button class="btn-primary" onclick="document.getElementById('iosInstallGuide').remove()" style="width: 100%; background:#007AFF; border:none;">Entendi!</button>
             </div>
         </div>
     `;
