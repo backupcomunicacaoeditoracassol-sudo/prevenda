@@ -1,7 +1,7 @@
 {
-  "name": "Portal das Escritoras",
-  "short_name": "Portal",
-  "description": "Rede social exclusiva para escritoras do programa editorial.",
+  "name": "Portal Pré-Venda",
+  "short_name": "Pré-Venda",
+  "description": "Rede social exclusiva para autores do programa de pré-venda editorial.",
   "start_url": "/prevenda/",
   "scope": "/prevenda/",
   "display": "standalone",
