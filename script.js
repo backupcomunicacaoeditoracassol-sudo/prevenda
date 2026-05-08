@@ -72,8 +72,29 @@ auth.onAuthStateChanged(async user => {
     setTimeout(() => {
         const splash = document.getElementById('splashScreen');
         if (splash) splash.classList.add('hidden');
+        
+        // Verificar se deve mostrar o botão de instalação mesmo sem estar logado
+        checkInstallButtonVisibility();
     }, 500);
 });
+
+function checkInstallButtonVisibility() {
+    const installBtn = document.getElementById('pwaInstallBtn');
+    const authInstallBlock = document.getElementById('authInstallBlock');
+    const isInstalled = isStandalone();
+
+    if (isInstalled) {
+        if (installBtn) installBtn.style.display = 'none';
+        if (authInstallBlock) authInstallBlock.style.display = 'none';
+        return;
+    }
+
+    // Mostrar botões se não estiver instalado
+    if (isIOS() || deferredPrompt) {
+        if (installBtn) installBtn.style.display = 'flex';
+        if (authInstallBlock) authInstallBlock.style.display = 'block';
+    }
+}
 
 async function checkUserApproval() {
     if (!currentUser) return false;
@@ -1200,10 +1221,8 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    const installBtn = document.getElementById('pwaInstallBtn');
-    if (installBtn && !isStandalone()) {
-        installBtn.style.display = 'flex';
-    }
+    // Tenta mostrar os botões de instalação agora que o prompt está disponível
+    checkInstallButtonVisibility();
 });
 
 function handleInstallClick() {
