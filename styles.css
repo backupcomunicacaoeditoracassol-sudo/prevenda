@@ -1,15 +1,15 @@
 :root {
-    --bg-color: #E5E0D8;
-    --card-bg: #FFFFFF;
-    --text-main: #1A1A1A;
-    --text-muted: #666666;
-    --accent: #B31312;
-    --accent-light: #FFEDED;
-    --accent-gradient: linear-gradient(135deg, #B31312 0%, #E63946 100%);
+    --bg-color: #8A0E0D;
+    --card-bg: #A31211;
+    --text-main: #FFFFFF;
+    --text-muted: rgba(255, 255, 255, 0.7);
+    --accent: #FFFFFF;
+    --accent-light: rgba(255, 255, 255, 0.1);
+    --accent-gradient: linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%);
     --font-title: 'Yeseva One', serif;
     --font-body: 'Outfit', sans-serif;
-    --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.08);
-    --shadow-bold: 0 20px 40px rgba(179, 19, 18, 0.12);
+    --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.2);
+    --shadow-bold: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -135,13 +135,12 @@ body {
     align-items: center;
     justify-content: center;
     padding: 40px;
-    background: #fff;
-    position: relative;
+    background: var(--bg-color);
 }
 
 .auth-container {
     width: 100%;
-    max-width: 420px;
+    max-width: 400px;
     animation: authFadeIn 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
@@ -170,16 +169,21 @@ body {
     width: 100%;
     padding: 18px 20px;
     margin-bottom: 15px;
-    border: 1px solid #EEE;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
     font-size: 1rem;
-    background: #FAFAFA;
+    background: rgba(255, 255, 255, 0.05);
+    color: #FFF;
     transition: 0.3s;
+}
+
+.auth-form input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .auth-form input:focus {
     border-color: var(--accent);
-    background: #fff;
+    background: rgba(255, 255, 255, 0.1);
     outline: none;
     box-shadow: 0 0 0 4px var(--accent-light);
 }
@@ -188,14 +192,14 @@ body {
     width: 100%;
     padding: 18px;
     background: var(--accent-gradient);
-    color: #fff;
+    color: var(--bg-color);
     border: none;
     border-radius: 15px;
     font-weight: 700;
     font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 10px 20px rgba(179, 19, 18, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:hover {
@@ -223,14 +227,15 @@ body {
     content: "";
     flex: 1;
     height: 1px;
-    background: #EEE;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .btn-google {
     width: 100%;
     padding: 16px;
-    background: #fff;
-    border: 1px solid #EEE;
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FFF;
     border-radius: 15px;
     display: flex;
     align-items: center;
@@ -242,8 +247,8 @@ body {
 }
 
 .btn-google:hover {
-    background: #F9F9F9;
-    border-color: #DDD;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #FFF;
     transform: translateY(-2px);
 }
 
@@ -262,10 +267,10 @@ body {
 
 /* APP SHELL */
 .main-header {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(138, 14, 13, 0.95);
     backdrop-filter: blur(10px);
     padding: 15px 25px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     position: fixed;
     top: 0;
     left: 0;
@@ -325,8 +330,8 @@ body {
 .tab-nav {
     display: flex;
     justify-content: center;
-    background: #fff;
-    border-bottom: 1px solid #EEE;
+    background: var(--card-bg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     position: fixed;
     top: 70px;
     left: 0;
@@ -344,7 +349,7 @@ body {
     font-family: var(--font-title);
     font-size: 1rem;
     font-weight: 700;
-    color: #888;
+    color: rgba(255, 255, 255, 0.5);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -367,19 +372,24 @@ body {
     transform: translateY(-3px);
 }
 
+.tab-btn:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
 .tab-btn.active {
     color: var(--accent);
 }
 
 .tab-btn.active::after {
-    content: "";
+    content: '';
     position: absolute;
-    bottom: 0;
-    width: 60%;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
     height: 4px;
     background: var(--accent);
     border-radius: 4px 4px 0 0;
-    box-shadow: 0 -2px 10px rgba(179, 19, 18, 0.2);
+    box-shadow: 0 -2px 10px rgba(255, 255, 255, 0.2);
 }
 
 /* CONTAINER & VIEWS */
@@ -422,15 +432,15 @@ body {
 
 .feed-card.admin-post {
     border-left: 6px solid var(--accent);
-    box-shadow: 0 10px 40px rgba(179, 19, 18, 0.08);
+    box-shadow: var(--shadow-bold);
 }
 
 .new-post-card {
-    background: #fff;
+    background: var(--card-bg);
     padding: 25px;
     border-radius: 20px;
     box-shadow: var(--shadow-soft);
-    border: 1px solid rgba(179, 19, 18, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .new-post-card textarea {
@@ -442,14 +452,19 @@ body {
     font-size: 1.1rem;
     resize: none;
     margin-bottom: 20px;
-    color: #333;
+    color: var(--text-main);
+    background: transparent;
+}
+
+.new-post-card textarea::placeholder {
+    color: var(--text-muted);
 }
 
 .post-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #F5F5F5;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 20px;
 }
 
@@ -458,9 +473,9 @@ body {
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    background: #fff;
-    color: var(--accent);
-    border: 2px solid var(--accent-light);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     font-weight: 600;
     font-size: 0.9rem;
@@ -469,13 +484,13 @@ body {
 }
 
 .btn-secondary:hover {
-    background: var(--accent-light);
-    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #FFF;
 }
 
 #imageNamePreview {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-muted);
     margin-left: 10px;
     max-width: 150px;
     overflow: hidden;
@@ -485,11 +500,11 @@ body {
 
 /* FEED CARDS */
 .feed-card {
-    background: #fff;
+    background: var(--card-bg);
     border-radius: 20px;
     margin-bottom: 30px;
-    border: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     overflow: hidden;
     width: 100%;
 }
@@ -523,14 +538,13 @@ body {
 
 .options-menu {
     position: absolute;
-    top: 40px;
     right: 0;
-    background: #fff;
-    border: 1px solid #EEE;
+    top: 40px;
+    background: var(--card-bg);
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    display: none;
-    z-index: 2000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 10;
     min-width: 180px;
     overflow: hidden;
     animation: menuFade 0.2s ease;
@@ -549,7 +563,7 @@ body {
     text-align: left;
     font-size: 0.9rem;
     font-weight: 600;
-    color: #444;
+    color: var(--text-main);
     cursor: pointer;
     transition: 0.2s;
     border-bottom: 1px solid #F9F9F9;
@@ -560,8 +574,8 @@ body {
 }
 
 .options-menu button:hover {
-    background: #F9F9F9;
-    color: var(--accent);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
 }
 
 .post-author-img {
@@ -574,18 +588,18 @@ body {
 .post-info h4 {
     font-size: 1rem;
     font-weight: 700;
-    color: #1A1A1A;
+    color: var(--text-main);
 }
 
 .post-info span {
     font-size: 0.8rem;
-    color: #999;
+    color: var(--text-muted);
 }
 
 .post-content {
     padding: 10px 25px 25px;
     font-size: 1.1rem;
-    color: #2D2D2D;
+    color: var(--text-main);
     white-space: pre-wrap;
     line-height: 1.7;
     text-align: justify;
@@ -780,13 +794,13 @@ body {
 }
 
 .internal-progress-section {
-    background: #fff;
+    background: var(--card-bg);
     padding: 40px;
     border-radius: 30px;
     text-align: center;
     margin-bottom: 50px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
 }
@@ -806,7 +820,7 @@ body {
 .progress-title {
     font-family: var(--font-title);
     font-size: 2.5rem;
-    color: #1a1a1a;
+    color: var(--text-main);
     margin-bottom: 20px;
     line-height: 1.2;
 }
@@ -814,7 +828,7 @@ body {
 .main-progress-container {
     width: 100%;
     height: 12px;
-    background: #F5F5F5;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     margin: 25px 0;
     padding: 2px;
@@ -830,7 +844,7 @@ body {
 
 .progress-stats {
     font-weight: 700;
-    color: var(--accent);
+    color: var(--text-main);
     text-transform: uppercase;
     font-size: 0.9rem;
     letter-spacing: 2px;
@@ -843,12 +857,12 @@ body {
 }
 
 .slot-card {
-    background: #fff;
+    background: var(--card-bg);
     padding: 45px 30px;
     border-radius: 24px;
     text-align: center;
-    border: 1px solid rgba(0, 0, 0, 0.03);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-soft);
     transition: 0.4s;
     position: relative;
     display: flex;
@@ -869,8 +883,8 @@ body {
     left: 20px;
     width: 35px;
     height: 35px;
-    background: var(--accent-light);
-    color: var(--accent);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -882,12 +896,12 @@ body {
 .slot-title {
     font-family: var(--font-title);
     font-size: 1.8rem;
-    color: #1A1A1A;
+    color: var(--text-main);
     margin-bottom: 10px;
 }
 
 .slot-desc {
-    color: #888;
+    color: var(--text-muted);
     font-size: 0.95rem;
     margin-bottom: 30px;
     font-style: italic;
