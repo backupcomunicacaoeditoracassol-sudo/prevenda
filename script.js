@@ -460,7 +460,17 @@ async function loadFeed() {
                         ` : ''}
                     </div>
                     <div class="post-content">${post.content}</div>
-                    ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image">` : ""}
+                    ${(() => {
+                        if (!post.imageUrl) return "";
+                        let renderUrl = post.imageUrl;
+                        if (renderUrl.includes('drive.google.com/uc')) {
+                            const match = renderUrl.match(/id=([^&]+)/);
+                            if (match && match[1]) {
+                                renderUrl = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+                            }
+                        }
+                        return `<img src="${renderUrl}" class="post-image" referrerpolicy="no-referrer">`;
+                    })()}
                     <div class="post-footer">
                         <button class="post-action ${hasLiked ? 'liked' : ''}" onclick="likePost('${doc.id}')">
                             <svg class="heart-icon" viewBox="0 0 24 24" width="22" height="22" fill="${hasLiked ? 'var(--accent)' : 'none'}" stroke="${hasLiked ? 'var(--accent)' : 'currentColor'}" stroke-width="2">
