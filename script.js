@@ -1255,8 +1255,11 @@ async function registerPushToken() {
     }
 
     try {
-        // Registrar o Service Worker
-        const reg = await navigator.serviceWorker.register('/prevenda/sw.js', { scope: '/prevenda/' });
+        // Registrar o Service Worker (caminho dinâmico: local ou GitHub Pages)
+        const isGHPages = location.hostname.includes('github.io') || location.pathname.startsWith('/prevenda');
+        const swPath  = isGHPages ? '/prevenda/sw.js' : '/sw.js';
+        const swScope = isGHPages ? '/prevenda/' : '/';
+        const reg = await navigator.serviceWorker.register(swPath, { scope: swScope });
         console.log('Service Worker registrado:', reg.scope);
 
         // Aguardar o SW ficar ativo
