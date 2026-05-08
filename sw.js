@@ -13,7 +13,8 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Lidar com mensagens em background
+// Lidar com mensagens em background (REMOVIDO: O Firebase já faz isso nativamente se a payload tiver 'notification'. Chamar showNotification manualmente aqui bloqueia no iOS)
+/*
 messaging.onBackgroundMessage((payload) => {
     console.log('[sw.js] Mensagem em background recebida:', payload);
 
@@ -24,13 +25,10 @@ messaging.onBackgroundMessage((payload) => {
         icon: icon || 'https://ui-avatars.com/api/?name=Portal&background=B31312&color=fff&size=192',
         badge: 'https://ui-avatars.com/api/?name=PE&background=B31312&color=fff&size=72',
         vibrate: [200, 100, 200],
-        data: payload.data,
-        actions: [
-            { action: 'open', title: '📖 Ver publicação' },
-            { action: 'close', title: 'Fechar' }
-        ]
+        data: payload.data
     });
 });
+*/
 
 // Ao clicar na notificação, abrir o portal
 self.addEventListener('notificationclick', (event) => {
