@@ -489,22 +489,16 @@ body {
     transition: all 0.3s;
 }
 
-.new-post-card .btn-secondary, .feed-card .btn-secondary, .slot-card .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #FFFFFF;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+.new-post-card .btn-secondary, .feed-card .btn-secondary, .slot-card .btn-secondary, .file-label {
+    background: #FFFFFF !important;
+    color: var(--accent) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-.btn-secondary:hover {
-    background: var(--accent);
-    color: #FFF;
+.new-post-card .btn-secondary:hover, .feed-card .btn-secondary:hover, .slot-card .btn-secondary:hover, .file-label:hover {
+    background: var(--bg-color) !important;
     transform: scale(1.05);
-}
-
-.new-post-card .btn-secondary:hover, .feed-card .btn-secondary:hover, .slot-card .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: #FFF;
-    color: #FFF;
 }
 
 
@@ -911,10 +905,6 @@ body {
     box-shadow: 0 30px 60px rgba(138, 14, 13, 0.25);
 }
 
-.slot-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 25px 60px rgba(179, 19, 18, 0.08);
-}
 
 .slot-card::before {
     content: attr(data-step);
@@ -949,7 +939,7 @@ body {
     font-size: 1rem;
     margin-bottom: 30px;
     font-style: italic;
-    opacity: 0.9;
+    opacity: 1;
     line-height: 1.4;
 }
 
@@ -1186,7 +1176,17 @@ body {
 
     .slot-card {
         min-height: 320px;
-        padding: 35px 20px;
+        padding: 40px 20px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .slot-title, .slot-desc {
+        text-align: center !important;
+        width: 100%;
     }
 
     .auth-content { padding: 15px; }
@@ -1290,4 +1290,10 @@ body {
 @keyframes badgePulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(179, 19, 18, 0.4); }
     50%       { box-shadow: 0 0 0 6px rgba(179, 19, 18, 0); }
+}
+/* Esconder botão de instalação se já estiver no modo standalone (PWA) */
+@media (display-mode: standalone) {
+    #notifPermBtn {
+        display: none !important;
+    }
 }
