@@ -249,7 +249,15 @@ async function handleEmailLogin() {
         await auth.signInWithEmailAndPassword(email, pass);
     } catch (error) {
         console.error("Erro Email Login:", error);
-        alert("Erro no login: " + error.message);
+        let msg = "Erro ao entrar.";
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+            msg = "E-mail ou senha incorretos.";
+        } else if (error.code === 'auth/invalid-email') {
+            msg = "O formato do e-mail é inválido.";
+        } else if (error.code === 'auth/too-many-requests') {
+            msg = "Muitas tentativas bloqueadas. Tente novamente mais tarde.";
+        }
+        alert(msg);
     } finally {
         btn.disabled = false;
         btn.innerText = "Entrar";
@@ -273,7 +281,15 @@ async function handleEmailRegister() {
         location.reload();
     } catch (error) {
         console.error("Erro Cadastro:", error);
-        alert("Erro no cadastro: " + error.message);
+        let msg = "Erro ao criar conta.";
+        if (error.code === 'auth/weak-password') {
+            msg = "A senha é muito fraca. Use pelo menos 6 caracteres.";
+        } else if (error.code === 'auth/email-already-in-use') {
+            msg = "Este e-mail já está cadastrado.";
+        } else if (error.code === 'auth/invalid-email') {
+            msg = "O e-mail digitado não é válido.";
+        }
+        alert(msg);
     } finally {
         btn.disabled = false;
         btn.innerText = "Criar Conta";
