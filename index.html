@@ -1,26 +1,33 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Portal da Escritora | Pré-venda 2026</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;600&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;600&family=Caveat:wght@400;700&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --bg-color: #F8F5F2;
             --text-main: #1A1A1A;
-            --accent: #B31312; 
+            --accent: #B31312;
             --accent-gradient: linear-gradient(90deg, #B31312 0%, #FF4D4D 100%);
             --font-title: 'Playfair Display', serif;
             --font-body: 'Outfit', sans-serif;
             --font-handwriting: 'Caveat', cursive;
-            --shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             background-color: var(--bg-color);
@@ -30,66 +37,294 @@
             min-height: 100vh;
         }
 
-        .header { padding: 60px 20px; text-align: center; background: #fff; border-bottom: 1px solid #ddd; margin-bottom: 40px; }
-        .title { font-family: var(--font-title); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; color: var(--accent); text-transform: uppercase; }
+        .header {
+            padding: 60px 20px;
+            text-align: center;
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 40px;
+        }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px 100px; }
+        .title {
+            font-family: var(--font-title);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
 
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.8s ease; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 100px;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .view {
+            display: none;
+        }
 
-        .writers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px; }
+        .view.active {
+            display: block;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .writers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 40px;
+        }
 
         .writer-card {
-            background: #fff; padding: 15px 15px 40px 15px; box-shadow: var(--shadow);
+            background: #fff;
+            padding: 15px 15px 40px 15px;
+            box-shadow: var(--shadow);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer; position: relative; transform: rotate(var(--rot));
+            cursor: pointer;
+            position: relative;
+            transform: rotate(var(--rot));
         }
-        .writer-card:hover { transform: scale(1.05) rotate(0deg) !important; z-index: 10; }
-        .writer-card::after { content: ""; position: absolute; top: -15px; left: 50%; transform: translateX(-50%) rotate(2deg); width: 100px; height: 30px; background: rgba(179, 19, 18, 0.4); backdrop-filter: blur(2px); }
 
-        .photo-wrap { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: #EEE; margin-bottom: 20px; }
-        .writer-photo { width: 100%; height: 100%; object-fit: cover; filter: sepia(20%); }
+        .writer-card:hover {
+            transform: scale(1.05) rotate(0deg) !important;
+            z-index: 10;
+        }
 
-        .writer-name { font-family: var(--font-title); font-size: 1.5rem; color: #1A1A1A; margin-bottom: 5px; }
-        .writer-role { font-family: var(--font-handwriting); font-size: 1.2rem; color: var(--accent); }
+        .writer-card::after {
+            content: "";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%) rotate(2deg);
+            width: 100px;
+            height: 30px;
+            background: rgba(179, 19, 18, 0.4);
+            backdrop-filter: blur(2px);
+        }
+
+        .photo-wrap {
+            width: 100%;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            background: #EEE;
+            margin-bottom: 20px;
+        }
+
+        .writer-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: sepia(20%);
+        }
+
+        .writer-name {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            color: #1A1A1A;
+            margin-bottom: 5px;
+        }
+
+        .writer-role {
+            font-family: var(--font-handwriting);
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
 
         /* Barra de Progresso Interna */
-        .internal-progress-section { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 40px; text-align: center; }
-        .progress-title { font-family: var(--font-handwriting); font-size: 1.8rem; color: #333; margin-bottom: 15px; }
-        .main-progress-container { width: 100%; height: 25px; background: #F0F0F0; border-radius: 50px; overflow: hidden; }
-        .main-progress-bar { height: 100%; width: 0%; background: var(--accent-gradient); transition: width 1s ease; border-radius: 50px; }
-        .progress-stats { margin-top: 15px; font-weight: 700; font-size: 1rem; color: var(--accent); text-transform: uppercase; }
+        .internal-progress-section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .progress-title {
+            font-family: var(--font-handwriting);
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .main-progress-container {
+            width: 100%;
+            height: 25px;
+            background: #F0F0F0;
+            border-radius: 50px;
+            overflow: hidden;
+        }
+
+        .main-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-gradient);
+            transition: width 1s ease;
+            border-radius: 50px;
+        }
+
+        .progress-stats {
+            margin-top: 15px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
 
         /* Slots de Upload */
-        .slots-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
-        .slot-card { background: #fff; border: 1px solid #EEE; padding: 40px 30px; text-align: center; transition: 0.3s; position: relative; }
-        .slot-card.completed { border-color: #2ecc71; background: #fafffb; }
-        .slot-title { font-family: var(--font-title); font-size: 1.4rem; margin-bottom: 15px; color: #333; }
-        
-        .file-label { display: inline-block; padding: 15px 30px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-        .file-label.completed { background: #2ecc71; }
-        .file-label:hover { transform: scale(1.05); }
+        .slots-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
 
-        .resend-btn { display: none; margin-top: 15px; font-size: 0.8rem; color: #777; text-decoration: underline; cursor: pointer; font-weight: 600; }
-        .slot-card.completed .resend-btn { display: block; }
+        .slot-card {
+            background: #fff;
+            border: 1px solid #EEE;
+            padding: 40px 30px;
+            text-align: center;
+            transition: 0.3s;
+            position: relative;
+        }
 
-        .status-txt { font-size: 0.9rem; margin-bottom: 15px; font-weight: 700; color: #B31312; min-height: 1.2rem; }
+        .slot-card.completed {
+            border-color: #2ecc71;
+            background: #fafffb;
+        }
+
+        .slot-title {
+            font-family: var(--font-title);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 15px 30px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .file-label.completed {
+            background: #2ecc71;
+        }
+
+        .file-label:hover {
+            transform: scale(1.05);
+        }
+
+        .resend-btn {
+            display: none;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #777;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .slot-card.completed .resend-btn {
+            display: block;
+        }
+
+        .status-txt {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: #B31312;
+            min-height: 1.2rem;
+        }
 
         /* Modal de Senha */
-        #passwordModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: #FFF; padding: 40px; text-align: center; width: 90%; max-width: 400px; border-radius: 10px; position: relative; }
-        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; cursor: pointer; color: #BBB; }
-        .modal-content input { width: 100%; padding: 15px; border: 1px solid #DDD; margin-bottom: 20px; font-size: 1.2rem; text-align: center; letter-spacing: 5px; }
-        .modal-content button { width: 100%; padding: 15px; background: var(--accent); color: #fff; border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+        #passwordModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
 
-        .back-link { cursor: pointer; color: #777; text-transform: uppercase; font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 20px; display: inline-block; }
+        .modal-content {
+            background: #FFF;
+            padding: 40px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+            position: relative;
+        }
 
-        @media (max-width: 600px) { .writers-grid { grid-template-columns: 1fr; } }
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #BBB;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #DDD;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 5px;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .back-link {
+            cursor: pointer;
+            color: #777;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        @media (max-width: 600px) {
+            .writers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <header class="header">
@@ -103,7 +338,7 @@
 
         <main id="detailView" class="view">
             <span class="back-link" onclick="goBack()">← Voltar ao Portal</span>
-            
+
             <div class="internal-progress-section">
                 <p class="progress-title" id="progressGreeting">Sua jornada editorial...</p>
                 <div class="main-progress-container">
@@ -113,8 +348,10 @@
             </div>
 
             <div class="detail-view-header" style="text-align:center; margin-bottom:40px">
-                <h2 id="currentName" style="font-family:var(--font-title); font-size:2.5rem; color:var(--accent)">Nome</h2>
-                <p id="currentRole" style="font-family:var(--font-handwriting); font-size:1.5rem; color:#666">Escritora</p>
+                <h2 id="currentName" style="font-family:var(--font-title); font-size:2.5rem; color:var(--accent)">Nome
+                </h2>
+                <p id="currentRole" style="font-family:var(--font-handwriting); font-size:1.5rem; color:#666">Escritora
+                </p>
             </div>
 
             <div class="slots-container">
@@ -123,28 +360,31 @@
                     <p id="s1" class="status-txt"></p>
                     <label for="f1" class="file-label" id="l1">📤 Subir Vídeo</label>
                     <input type="file" id="f1" style="display:none" onchange="up(event, 1, 'Carreira')">
-                    <span class="resend-btn" onclick="document.getElementById('f1').click()">Trocar ou reenviar vídeo</span>
+                    <span class="resend-btn" onclick="document.getElementById('f1').click()">Trocar ou reenviar
+                        vídeo</span>
                 </div>
                 <div class="slot-card" id="slot-2">
                     <h3 class="slot-title">02. Sobre a Obra</h3>
                     <p id="s2" class="status-txt"></p>
                     <label for="f2" class="file-label" id="l2">📤 Subir Vídeo</label>
                     <input type="file" id="f2" style="display:none" onchange="up(event, 2, 'Sobre_Obra')">
-                    <span class="resend-btn" onclick="document.getElementById('f2').click()">Trocar ou reenviar vídeo</span>
+                    <span class="resend-btn" onclick="document.getElementById('f2').click()">Trocar ou reenviar
+                        vídeo</span>
                 </div>
                 <div class="slot-card" id="slot-3">
                     <h3 class="slot-title">03. Vídeo Conceito</h3>
                     <p id="s3" class="status-txt"></p>
                     <label for="f3" class="file-label" id="l3">📤 Subir Vídeo</label>
                     <input type="file" id="f3" style="display:none" onchange="up(event, 3, 'Video_Conceito')">
-                    <span class="resend-btn" onclick="document.getElementById('f3').click()">Trocar ou reenviar vídeo</span>
+                    <span class="resend-btn" onclick="document.getElementById('f3').click()">Trocar ou reenviar
+                        vídeo</span>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="passwordModal">
-        <div class="modal-content">
+    <div id="passwordModal" onclick="closePassModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
             <span class="close-modal" onclick="closePassModal()">&times;</span>
             <h3>Acesso Restrito</h3>
             <p style="margin-bottom:20px; font-size:0.9rem; color:#666">Digite sua senha para acessar sua pasta.</p>
@@ -184,6 +424,18 @@
                 </div>
             `).join('');
             loadLocalStatus();
+
+            // Lógica para o botão de voltar do navegador/celular
+            window.addEventListener('popstate', (event) => {
+                if (event.state && event.state.view === 'detail') {
+                    // Mantém na pasta se o estado for de detalhe
+                } else {
+                    // Se voltar para o estado nulo ou inicial, fecha a pasta
+                    if (document.getElementById('detailView').classList.contains('active')) {
+                        closeFolderUI();
+                    }
+                }
+            });
         }
 
         function loadLocalStatus() {
@@ -214,14 +466,17 @@
         }
 
         function openFolder() {
+            // Adiciona ao histórico do navegador
+            history.pushState({view: 'detail', id: selected.id}, '', `#${selected.id}`);
+            
             document.getElementById('currentName').innerText = selected.name;
             document.getElementById('currentRole').innerText = selected.role;
             document.getElementById('listView').classList.remove('active');
             document.getElementById('detailView').classList.add('active');
             window.scrollTo(0, 0);
-            
+
             // Reset cards UI
-            for(let i=1; i<=3; i++) {
+            for (let i = 1; i <= 3; i++) {
                 document.getElementById(`slot-${i}`).classList.remove('completed');
                 document.getElementById(`l${i}`).innerText = "📤 Subir Vídeo";
                 document.getElementById(`l${i}`).style.background = "#B31312";
@@ -229,6 +484,17 @@
             }
 
             updateProgressUI();
+        }
+
+        function closeFolderUI() {
+            document.getElementById('detailView').classList.remove('active');
+            document.getElementById('listView').classList.add('active');
+            selected = null;
+        }
+
+        function goBack() {
+            // Se o usuário clicar no botão "Voltar" do site, usamos o histórico
+            history.back();
         }
 
         function updateProgressUI() {
@@ -277,7 +543,7 @@
                         st.innerText = "✅ Vídeo salvo com sucesso!";
                         st.style.color = "green";
                         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                        
+
                         // Atualiza Status
                         if (!sessionStatus[selected.id]) sessionStatus[selected.id] = {};
                         sessionStatus[selected.id][slot] = true;
@@ -308,4 +574,5 @@
         init();
     </script>
 </body>
+
 </html>
