@@ -12,10 +12,17 @@ const firebaseConfig = {
 // Initialize Firebase (Compatibility mode)
 firebase.initializeApp(firebaseConfig);
 
-// Firebase Messaging
-const messaging = firebase.messaging();
-// VAPID key from Firebase Console > Project Settings > Cloud Messaging > Web Push Certificates
-const VAPID_KEY = "BCOvoiBUvtP6OYZJfsUEkwF7lOBQMgpXQFxme86LBtcKhdmagPK3EXtXDYhQbBNDDjw6t8KotOlQo6_sIZyFrPw";
+// Firebase Messaging - inicializado com segurança dentro da função
+let messaging = null;
+try {
+    messaging = firebase.messaging();
+} catch(e) {
+    console.warn('Firebase Messaging não suportado neste contexto:', e.message);
+}
+
+// VAPID Key do Firebase Console (Configurações > Cloud Messaging > Certificados Push Web)
+// ⬇️ COLE AQUI a chave pública gerada no Firebase Console ⬇️
+const VAPID_KEY = 'BCOvoiBUvtP6OYZJfsUEkwF7lOBQMgpXQFxme86LBtcKhdmagPK3EXtXDYhQbBNDDjw6t8KotOlQo6_sIZyFrPw';
 
 // File Input Preview (Show selected filename)
 document.addEventListener('change', e => {
@@ -618,8 +625,8 @@ async function initApp() {
     // Iniciar listener de notificações em tempo real
     startNotificationListener();
 
-    // Registrar push notifications (pede permissão se necessário)
-    registerPushNotifications();
+    // Verificar estado das notificações push (NÃO pede permissão automaticamente)
+    checkPushNotificationState();
 }
 
 function loadLocalStatus() {
@@ -1070,26 +1077,144 @@ async function sendPushToAll(title, body, icon) {
         console.error('Erro ao enviar push:', e);
     }
 }
-// === PUSH NOTIFICATIONS (Web Push via FCM) ===
 
-async function registerPushNotifications() {
+// === PUSH NOTIFICATIONS (Web Push via FCM) — iOS Compatible ===
+
+// Detectar iOS
+function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+// Detectar se está em modo PWA standalone (instalado na Home Screen)
+function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
+}
+
+// Verificar estado das notificações sem pedir permissão (chamado no initApp)
+function checkPushNotificationState() {
     if (!currentUser) return;
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        console.warn('Push não suportado neste navegador.');
+    
+    const btn = document.getElementById('notifPermBtn');
+    if (!btn) return;
+
+    // Verificar suporte básico
+    if (!('Notification' in window)) {
+        console.warn('Notifications API não disponível.');
+        // No iOS fora do standalone, mostrar botão que guia para instalar
+        if (isIOS() && !isStandalone()) {
+            btn.innerHTML = '📲 Instalar App';
+            btn.style.display = 'flex';
+            btn.onclick = showIOSInstallGuide;
+        }
+        return;
+    }
+
+    // iOS em standalone mas sem suporte a PushManager (versão antiga do iOS)
+    if (isIOS() && isStandalone() && !('PushManager' in window)) {
+        console.warn('PushManager não disponível neste iOS. Versão 16.4+ necessária.');
+        btn.style.display = 'none';
+        return;
+    }
+
+    // Se a permissão já foi concedida, registrar token silenciosamente
+    if (Notification.permission === 'granted') {
+        btn.style.display = 'none';
+        registerPushToken(); // Apenas registra token, sem pedir permissão
+        setupForegroundMessages();
+        return;
+    }
+
+    // Se foi negada, esconder botão
+    if (Notification.permission === 'denied') {
+        btn.style.display = 'none';
+        console.log('Notificações foram bloqueadas pelo usuário.');
+        return;
+    }
+
+    // Permissão ainda não decidida ("default") — mostrar botão
+    btn.innerHTML = '🔔 Ativar Notificações';
+    btn.style.display = 'flex';
+}
+
+// Função chamada pelo botão "🔔 Ativar Notificações" (via gesto do usuário!)
+async function requestNotifPermission() {
+    const btn = document.getElementById('notifPermBtn');
+    
+    // iOS fora do standalone → guiar para instalar
+    if (isIOS() && !isStandalone()) {
+        showIOSInstallGuide();
+        return;
+    }
+
+    // Verificar suporte
+    if (!('Notification' in window) || !('PushManager' in window)) {
+        alert('Notificações push não são suportadas neste navegador. No iPhone, adicione o app à Tela Inicial primeiro.');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Aguarde...';
+    }
+
+    try {
+        // Pedir permissão (DEVE estar dentro de um evento de clique para iOS!)
+        const permission = await Notification.requestPermission();
+        
+        if (permission === 'granted') {
+            console.log('✅ Permissão de notificação concedida!');
+            await registerPushToken();
+            setupForegroundMessages();
+            
+            if (btn) {
+                btn.innerHTML = '✅ Notificações Ativas';
+                btn.style.background = 'rgba(46, 204, 113, 0.15)';
+                btn.style.color = '#2ecc71';
+                btn.style.borderColor = 'rgba(46, 204, 113, 0.4)';
+                setTimeout(() => { btn.style.display = 'none'; }, 3000);
+            }
+
+            // Mostrar confirmação visual
+            showNotificationToast({
+                message: '🎉 Notificações ativadas! Você será avisada de novas publicações.',
+                authorName: 'Portal',
+                authorPhoto: ''
+            });
+        } else {
+            console.log('Permissão negada ou descartada:', permission);
+            if (btn) {
+                btn.innerHTML = '🔕 Notificações Bloqueadas';
+                btn.disabled = false;
+                setTimeout(() => { btn.style.display = 'none'; }, 3000);
+            }
+        }
+    } catch (e) {
+        console.error('Erro ao solicitar permissão:', e);
+        if (btn) {
+            btn.innerHTML = '🔔 Ativar Notificações';
+            btn.disabled = false;
+        }
+    }
+}
+
+// Registrar Service Worker + obter token FCM (sem pedir permissão)
+async function registerPushToken() {
+    if (!currentUser || !messaging) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (VAPID_KEY === 'COLE_A_VAPID_KEY_AQUI') {
+        console.error('⚠️ VAPID_KEY não configurada! Vá ao Firebase Console > Cloud Messaging > Certificados Push Web.');
         return;
     }
 
     try {
-        // Registrar o Service Worker com o caminho correto para GitHub Pages
+        // Registrar o Service Worker
         const reg = await navigator.serviceWorker.register('/prevenda/sw.js', { scope: '/prevenda/' });
         console.log('Service Worker registrado:', reg.scope);
 
-        // Solicitar permissão
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-            console.log('Permissão de notificação negada.');
-            return;
-        }
+        // Aguardar o SW ficar ativo
+        await navigator.serviceWorker.ready;
 
         // Obter token FCM
         const token = await messaging.getToken({ 
@@ -1103,20 +1228,61 @@ async function registerPushNotifications() {
                 fcmTokens: firebase.firestore.FieldValue.arrayUnion(token),
                 lastTokenUpdate: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('FCM Token salvo.');
+            console.log('✅ FCM Token salvo:', token.slice(-12));
         }
-
-        // Mensagens em foreground (app aberto)
-        messaging.onMessage((payload) => {
-            console.log('Mensagem em foreground:', payload);
-            showNotificationToast({
-                message: payload.notification?.body || 'Nova publicação!',
-                authorName: payload.notification?.title || 'Portal',
-                authorPhoto: payload.notification?.image || ''
-            });
-        });
-
     } catch (e) {
-        console.error('Erro ao registrar push:', e);
+        console.error('Erro ao registrar push token:', e);
     }
+}
+
+// Listener de mensagens em foreground (app aberto)
+function setupForegroundMessages() {
+    if (!messaging) return;
+    messaging.onMessage((payload) => {
+        console.log('Mensagem em foreground:', payload);
+        showNotificationToast({
+            message: payload.notification?.body || 'Nova publicação!',
+            authorName: payload.notification?.title || 'Portal',
+            authorPhoto: payload.notification?.image || ''
+        });
+    });
+}
+
+// Guia visual para instalar o PWA no iOS
+function showIOSInstallGuide() {
+    // Remover guia anterior se existir
+    const existing = document.getElementById('iosInstallGuide');
+    if (existing) existing.remove();
+
+    const guide = document.createElement('div');
+    guide.id = 'iosInstallGuide';
+    guide.className = 'congrats-overlay';
+    guide.style.cssText = 'display:flex; align-items:center; justify-content:center; z-index: 10000;';
+    guide.innerHTML = `
+        <div class="congrats-card" style="max-width: 380px; text-align: center;">
+            <div class="congrats-icon" style="font-size: 3.5rem;">📲</div>
+            <h2 style="font-family: var(--font-title); font-size: 1.6rem; margin-bottom: 12px;">Instalar o Portal</h2>
+            <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">
+                Para receber notificações no iPhone, você precisa <strong>adicionar o Portal à Tela Inicial</strong>:
+            </p>
+            <div style="text-align: left; background: #f8f8f8; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
+                    <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">1️⃣</span>
+                    <span style="font-size: 0.9rem; color: #444;">Toque no botão <strong>Compartilhar</strong> (ícone <span style="font-size: 1.2rem;">⬆️</span>) na barra inferior do Safari</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
+                    <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">2️⃣</span>
+                    <span style="font-size: 0.9rem; color: #444;">Role para baixo e toque em <strong>"Adicionar à Tela Inicial"</strong></span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">3️⃣</span>
+                    <span style="font-size: 0.9rem; color: #444;">Abra o Portal pelo <strong>ícone na Tela Inicial</strong> e toque em <strong>"🔔 Ativar Notificações"</strong></span>
+                </div>
+            </div>
+            <div class="congrats-actions">
+                <button class="btn-primary" onclick="document.getElementById('iosInstallGuide').remove()" style="width: 100%;">Entendi!</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(guide);
 }
