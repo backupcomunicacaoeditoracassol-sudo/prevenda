@@ -348,7 +348,7 @@ async function createPost() {
             // Criar notificacao para todos os usuarios
             await db.collection('notifications').add({
                 postId: postRef.id,
-                message: `📝 ${currentUser.displayName || 'Admin'} publicou: ${postTitle || 'Uma novidade no feed!'}`,
+                message: `✨ ${currentUser.displayName || 'Admin'} publicou: ${postTitle || 'Uma novidade no feed!'}`,
                 authorName: currentUser.displayName || 'Admin',
                 authorPhoto: currentUser.photoURL || '',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -356,11 +356,8 @@ async function createPost() {
             });
 
             // Enviar push via Apps Script relay
-            const pushTitle = postTitle ? `📝 ${postTitle}` : '📝 Nova publicação!';
-            console.log("Enviando push com titulo:", pushTitle);
-
             sendPushToAll(
-                pushTitle,
+                postTitle ? `✨ ${postTitle}` : '✨ Nova publicação!',
                 `${currentUser.displayName || 'Admin'}: ${content.slice(0, 80)}${content.length > 80 ? '...' : ''}`,
                 currentUser.photoURL || ''
             );
@@ -1030,7 +1027,7 @@ function showNotificationToast(data) {
     toast.innerHTML = `
         <img src="${photo}" referrerpolicy="no-referrer" class="notif-avatar">
         <div class="notif-body">
-            <strong>Nova publicação!</strong>
+            <strong>${data.title || 'Nova publicação!'}</strong>
             <p>${data.message}</p>
         </div>
         <button class="notif-close" onclick="this.parentElement.remove()">×</button>
@@ -1281,8 +1278,9 @@ function setupForegroundMessages() {
     messaging.onMessage((payload) => {
         console.log('Mensagem em foreground:', payload);
         showNotificationToast({
-            message: payload.notification?.body || 'Nova publicação!',
-            authorName: payload.notification?.title || 'Portal',
+            title: payload.notification?.title || 'Portal das Escritoras',
+            message: payload.notification?.body || 'Nova publicação no feed!',
+            authorName: 'Portal',
             authorPhoto: payload.notification?.image || ''
         });
     });
