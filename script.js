@@ -656,7 +656,8 @@ async function nukeAllPosts() {
 }
 
 async function initApp() {
-    loadLocalStatus();
+    loadLocalStatus(); // Carrega imediato do cache local
+    syncProgressFromCloud(); // Busca versão mais recente na nuvem
 
     // Restaurar aba ativa
     const savedTab = localStorage.getItem('activeTab') || 'feed';
@@ -672,13 +673,44 @@ async function initApp() {
 function loadLocalStatus() {
     if (!currentUser) return;
     const saved = localStorage.getItem(`portal_status_${currentUser.uid}`);
-    if (saved) sessionStatus = JSON.parse(saved);
-    else sessionStatus = {};
+    if (saved) {
+        sessionStatus = JSON.parse(saved);
+        updateProgressUI();
+    } else {
+        sessionStatus = {};
+    }
 }
 
-function saveLocalStatus() {
+async function syncProgressFromCloud() {
+    if (!currentUser) return;
+    try {
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        if (userDoc.exists) {
+            const data = userDoc.data();
+            if (data.progress) {
+                sessionStatus = data.progress;
+                // Atualizar cache local
+                localStorage.setItem(`portal_status_${currentUser.uid}`, JSON.stringify(sessionStatus));
+                updateProgressUI();
+                console.log("✅ Progresso sincronizado com a nuvem.");
+            }
+        }
+    } catch (e) {
+        console.error("Erro ao sincronizar com a nuvem:", e);
+    }
+}
+
+async function saveLocalStatus() {
     if (!currentUser) return;
     localStorage.setItem(`portal_status_${currentUser.uid}`, JSON.stringify(sessionStatus));
+    
+    try {
+        await db.collection('users').doc(currentUser.uid).set({
+            progress: sessionStatus
+        }, { merge: true });
+    } catch (e) {
+        console.error("Erro ao salvar progresso na nuvem:", e);
+    }
 }
 
 function resetMyProgress() {
@@ -752,7 +784,7 @@ async function up(ev, slot, title) {
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
                 sessionStatus[slot] = true;
-                saveLocalStatus();
+                await saveLocalStatus(); // Agora é assíncrono para garantir o save no Firestore
                 updateProgressUI();
 
                 showCongratsPopup(title);
