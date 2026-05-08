@@ -1151,25 +1151,25 @@ body {
 .mobile-auth-header {
     display: none;
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     background: var(--accent);
-    padding: 40px 20px;
-    border-radius: 0 0 40px 40px;
-    margin-top: -40px; /* Alinha com o topo da auth-content */
-    box-shadow: 0 10px 30px rgba(138, 14, 13, 0.2);
+    padding: 25px 20px;
+    border-radius: 0 0 30px 30px;
+    margin-top: -40px;
+    box-shadow: 0 10px 20px rgba(138, 14, 13, 0.15);
 }
 
 .mobile-auth-header h1 {
     font-family: var(--font-title);
-    font-size: 2.4rem;
+    font-size: 1.8rem;
     color: #FFFFFF;
-    margin-bottom: 8px;
-    line-height: 1.1;
+    margin-bottom: 4px;
+    line-height: 1;
 }
 
 .mobile-auth-header p {
     color: rgba(255,255,255,0.9);
-    font-size: 1rem;
+    font-size: 0.85rem;
     opacity: 0.8;
 }
 
@@ -1281,18 +1281,58 @@ body {
     }
 
     .auth-brand {
-        margin-bottom: 25px;
+        margin-bottom: 15px;
         text-align: center;
     }
 
+    .auth-brand h2 {
+        font-size: 1.8rem;
+        margin-bottom: 0;
+    }
+
+    .auth-brand p {
+        font-size: 0.9rem;
+    }
+
+    .auth-install-tip {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .auth-install-tip p {
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    .btn-install-auth {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+
     .auth-content { 
-        padding: 40px 20px; 
-        align-items: flex-start; /* Permite scroll se necessário */
+        padding: 40px 15px 20px; 
+        align-items: flex-start;
         overflow-y: auto;
     }
     .auth-container { 
         max-width: 100%; 
         margin: 0 auto;
+    }
+    .auth-form input {
+        padding: 12px 15px;
+        margin-bottom: 8px;
+    }
+    .btn-primary {
+        padding: 14px;
+    }
+    .divider {
+        margin: 15px 0;
+    }
+    .btn-google {
+        padding: 12px;
+    }
+    .auth-footer {
+        margin-top: 15px;
     }
     .mobile-auth-header {
         margin-left: -20px;
