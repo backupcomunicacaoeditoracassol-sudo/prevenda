@@ -279,6 +279,8 @@ function switchTab(tab) {
 
 async function createPost() {
     const content = document.getElementById('postContent').value;
+    const titleEl = document.getElementById('postTitle');
+    const postTitle = titleEl ? titleEl.value.trim() : "";
     const imageFile = document.getElementById('postImage').files[0];
 
     if (!content) return alert("Escreva algo antes de publicar.");
@@ -333,6 +335,7 @@ async function createPost() {
             btn.innerText = "Publicar";
         } else {
             const postRef = await db.collection('posts').add({
+                title: postTitle,
                 content: content,
                 imageUrl: imageUrl,
                 authorName: currentUser.displayName || "Admin",
@@ -345,7 +348,7 @@ async function createPost() {
             // Criar notificacao para todos os usuarios
             await db.collection('notifications').add({
                 postId: postRef.id,
-                message: `📝 ${currentUser.displayName || 'Admin'} publicou uma novidade no feed!`,
+                message: `📝 ${currentUser.displayName || 'Admin'} publicou: ${postTitle || 'Uma novidade no feed!'}`,
                 authorName: currentUser.displayName || 'Admin',
                 authorPhoto: currentUser.photoURL || '',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -354,13 +357,14 @@ async function createPost() {
 
             // Enviar push via Apps Script relay
             sendPushToAll(
-                '📝 Nova publicação!',
+                postTitle ? `📝 ${postTitle}` : '📝 Nova publicação!',
                 `${currentUser.displayName || 'Admin'}: ${content.slice(0, 80)}${content.length > 80 ? '...' : ''}`,
                 currentUser.photoURL || ''
             );
         }
 
         document.getElementById('postContent').value = "";
+        if (document.getElementById('postTitle')) document.getElementById('postTitle').value = "";
         document.getElementById('postImage').value = "";
         document.getElementById('imageNamePreview').innerText = "";
         loadFeed();
@@ -459,6 +463,7 @@ async function loadFeed() {
                             </div>
                         ` : ''}
                     </div>
+                    ${post.title ? `<h3 class="post-title" style="margin: 0 0 8px 0; font-family: var(--font-title); font-size: 1.2rem; color: #111;">${post.title}</h3>` : ''}
                     <div class="post-content">${post.content}</div>
                     ${(() => {
                         if (!post.imageUrl) return "";
