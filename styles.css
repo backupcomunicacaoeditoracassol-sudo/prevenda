@@ -967,19 +967,41 @@ body {
 }
 
 @media (max-width: 600px) {
+    .main-header {
+        padding: 10px 15px;
+    }
+    
+    .user-profile img {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .logo {
+        font-size: 1.3rem;
+    }
+
     .tab-nav {
-        position: fixed;
-        bottom: 0;
-        top: auto;
+        position: sticky;
+        top: 53px; /* Altura do header novo (32px img + 20px padding + 1px border) */
+        bottom: auto;
         width: 100%;
         background: #fff;
-        border-top: 1px solid #EEE;
-        padding-bottom: calc(10px + env(safe-area-inset-bottom));
-        box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.08);
+        border-top: none;
+        padding-bottom: 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         z-index: 1001;
     }
 
-    .container { padding: 20px 15px 120px; }
+    .tab-btn {
+        padding: 10px 5px;
+        font-size: 0.85rem;
+    }
+    
+    .tab-btn .icon {
+        font-size: 1rem;
+    }
+
+    .container { padding: 20px 15px 40px; }
     
     .internal-progress-section { 
         padding: 25px 15px; 
