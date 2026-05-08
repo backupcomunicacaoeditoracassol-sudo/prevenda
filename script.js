@@ -395,12 +395,12 @@ async function editPost(postId) {
 
     // Transform content into textarea
     contentDiv.innerHTML = `
-        <textarea id="edit-input-${postId}" class="inline-edit-textarea">${currentText}</textarea>
-        <div class="inline-edit-actions">
-            <button class="btn-save" onclick="updatePostInline('${postId}')">Salvar</button>
-            <button class="btn-cancel" onclick="loadFeed()">Cancelar</button>
-        </div>
-    `;
+            <textarea id="edit-input-${postId}" class="inline-edit-textarea">${currentText}</textarea>
+            <div class="inline-edit-actions">
+                <button class="btn-save" onclick="updatePostInline('${postId}')">Salvar</button>
+                <button class="btn-cancel" onclick="loadFeed()">Cancelar</button>
+            </div>
+        `;
 
     const textarea = document.getElementById(`edit-input-${postId}`);
     textarea.focus();
@@ -448,30 +448,30 @@ async function loadFeed() {
             const hasLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
 
             return `
-                <div class="feed-card ${isAdminPost ? 'admin-post' : ''}" id="post-${doc.id}">
-                    <div class="post-header">
-                        <img src="${authorImg}" class="post-author-img" referrerpolicy="no-referrer">
-                        <div class="post-info">
-                            <h4>${post.authorName} ${isAdminPost ? `
-                                <svg class="verified-badge" viewBox="0 0 24 24" width="18" height="18">
-                                    <path fill="#0095f6" d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.67-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91c-1.31.67-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zM10 17L5.5 12.5l1.41-1.41L10 14.17l7.09-7.09L18.5 8.5 10 17z"/>
-                                </svg>
-                            ` : ''}</h4>
-                            <span>${date}</span>
-                        </div>
-                        ${(isAdmin || isAuthor) ? `
-                            <div class="post-options">
-                                <button class="btn-dots" onclick="togglePostMenu('${doc.id}', event)">...</button>
-                                <div class="options-menu" id="menu-${doc.id}">
-                                    <button onclick="editPost('${doc.id}')">Editar Postagem</button>
-                                    <button onclick="deletePost('${doc.id}')" style="color: var(--accent);">Excluir Postagem</button>
-                                </div>
+                    <div class="feed-card ${isAdminPost ? 'admin-post' : ''}" id="post-${doc.id}">
+                        <div class="post-header">
+                            <img src="${authorImg}" class="post-author-img" referrerpolicy="no-referrer">
+                            <div class="post-info">
+                                <h4>${post.authorName} ${isAdminPost ? `
+                                    <svg class="verified-badge" viewBox="0 0 24 24" width="18" height="18">
+                                        <path fill="#0095f6" d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.67-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91c-1.31.67-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zM10 17L5.5 12.5l1.41-1.41L10 14.17l7.09-7.09L18.5 8.5 10 17z"/>
+                                    </svg>
+                                ` : ''}</h4>
+                                <span>${date}</span>
                             </div>
-                        ` : ''}
-                    </div>
-                    ${post.title ? `<h3 class="post-title">${post.title}</h3>` : ''}
-                    <div class="post-content">${post.content}</div>
-                    ${(() => {
+                            ${(isAdmin || isAuthor) ? `
+                                <div class="post-options">
+                                    <button class="btn-dots" onclick="togglePostMenu('${doc.id}', event)">...</button>
+                                    <div class="options-menu" id="menu-${doc.id}">
+                                        <button onclick="editPost('${doc.id}')">Editar Postagem</button>
+                                        <button onclick="deletePost('${doc.id}')" style="color: var(--accent);">Excluir Postagem</button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        ${post.title ? `<h3 class="post-title">${post.title}</h3>` : ''}
+                        <div class="post-content">${post.content}</div>
+                        ${(() => {
                     if (!post.imageUrl) return "";
                     let renderUrl = post.imageUrl;
                     if (renderUrl.includes('drive.google.com/uc')) {
@@ -482,37 +482,37 @@ async function loadFeed() {
                     }
                     return `<img src="${renderUrl}" class="post-image" referrerpolicy="no-referrer">`;
                 })()}
-                    <div class="post-footer">
-                        <button class="post-action ${hasLiked ? 'liked' : ''}" onclick="likePost('${doc.id}')">
-                            <svg class="heart-icon" viewBox="0 0 24 24" width="22" height="22" fill="${hasLiked ? 'var(--accent)' : 'none'}" stroke="${hasLiked ? 'var(--accent)' : 'currentColor'}" stroke-width="2">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                            <span id="likes-count-${doc.id}">${post.likes || 0}</span>
-                        </button>
-                        <button class="post-action" onclick="toggleComments('${doc.id}')">
-                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="comments-section" id="comments-${doc.id}">
-                        <div class="comments-list" id="list-${doc.id}">
-                            <!-- Comments injected here -->
+                        <div class="post-footer">
+                            <button class="post-action ${hasLiked ? 'liked' : ''}" onclick="likePost('${doc.id}')">
+                                <svg class="heart-icon" viewBox="0 0 24 24" width="22" height="22" fill="${hasLiked ? 'var(--accent)' : 'none'}" stroke="${hasLiked ? 'var(--accent)' : 'currentColor'}" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                                <span id="likes-count-${doc.id}">${post.likes || 0}</span>
+                            </button>
+                            <button class="post-action" onclick="toggleComments('${doc.id}')">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                                </svg>
+                            </button>
                         </div>
-                        <div class="comment-input-area">
-                            <input type="text" id="input-${doc.id}" placeholder="Escreva um comentário...">
-                            <button onclick="addComment('${doc.id}')">Enviar</button>
+                        <div class="comments-section" id="comments-${doc.id}">
+                            <div class="comments-list" id="list-${doc.id}">
+                                <!-- Comments injected here -->
+                            </div>
+                            <div class="comment-input-area">
+                                <input type="text" id="input-${doc.id}" placeholder="Escreva um comentário...">
+                                <button onclick="addComment('${doc.id}')">Enviar</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
         }).join('');
     } catch (error) {
         console.error("Erro ao carregar feed:", error);
         feedList.innerHTML = `<p style='text-align:center; color:#888; padding: 20px;'>
-            Erro ao carregar o feed. Verifique sua conexão ou configuração do Firebase.<br>
-            <small style="font-size: 0.7rem;">${error.message}</small>
-        </p>`;
+                Erro ao carregar o feed. Verifique sua conexão ou configuração do Firebase.<br>
+                <small style="font-size: 0.7rem;">${error.message}</small>
+            </p>`;
     }
 }
 
@@ -624,10 +624,10 @@ async function loadComments(postId) {
         list.innerHTML = snapshot.docs.map(doc => {
             const c = doc.data();
             return `
-                <div class="comment-item">
-                    <strong>${c.authorName}:</strong> <span>${c.text}</span>
-                </div>
-            `;
+                    <div class="comment-item">
+                        <strong>${c.authorName}:</strong> <span>${c.text}</span>
+                    </div>
+                `;
         }).join('');
     } catch (e) {
         list.innerHTML = "<p style='font-size:0.8rem; color:red; padding:10px;'>Erro ao carregar comentários.</p>";
@@ -830,19 +830,19 @@ function showCongratsPopup(slotTitle) {
     const defaultText = `✨ Conquista Desbloqueada! Acabei de completar o "${slotTitle}" da minha jornada no Portal Pré-Venda! 🖋️📖`;
 
     overlay.innerHTML = `
-        <div class="congrats-card">
-            <div class="congrats-icon">🎉</div>
-            <h2>Parabéns!</h2>
-            <p>Você completou o desafio: <br><strong>"${slotTitle}"</strong></p>
-            
-            <textarea id="achievementMessage" class="congrats-textarea" placeholder="Escreva uma mensagem...">${defaultText}</textarea>
+            <div class="congrats-card">
+                <div class="congrats-icon">🎉</div>
+                <h2>Parabéns!</h2>
+                <p>Você completou o desafio: <br><strong>"${slotTitle}"</strong></p>
+                
+                <textarea id="achievementMessage" class="congrats-textarea" placeholder="Escreva uma mensagem...">${defaultText}</textarea>
 
-            <div class="congrats-actions">
-                <button class="btn-primary" onclick="shareAchievement('${escapedTitle}')">✨ Compartilhar no Feed</button>
-                <button class="btn-text" onclick="closeCongrats()">Agora não</button>
+                <div class="congrats-actions">
+                    <button class="btn-primary" onclick="shareAchievement('${escapedTitle}')">✨ Compartilhar no Feed</button>
+                    <button class="btn-text" onclick="closeCongrats()">Agora não</button>
+                </div>
             </div>
-        </div>
-    `;
+        `;
     document.body.appendChild(overlay);
 
     // Confetti explosion com proteção
@@ -920,37 +920,37 @@ async function loadUsersForAdmin() {
                 '<span style="color:orange; font-weight:bold;">Pendente</span>';
 
             return `
-                <div class="feed-card" style="padding: 25px; display: flex; align-items: center; gap: 15px; background: var(--card-bg); color: #FFFFFF;">
-                    <img src="${u.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);" referrerpolicy="no-referrer">
-                    <div style="flex: 1;">
-                        <h4 style="margin:0; font-family: var(--font-title); font-size: 1.2rem; color: #FFFFFF;">${u.name} ${u.isAdmin ? '⭐' : ''}</h4>
-                        <p style="margin:0; font-size: 0.9rem; color: rgba(255,255,255,0.8);">${u.email}</p>
-                        <p style="margin:5px 0 0; font-size: 0.9rem; color: #FFFFFF;">Status: ${status}</p>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        ${u.approved ?
+                    <div class="feed-card" style="padding: 25px; display: flex; align-items: center; gap: 15px; background: var(--card-bg); color: #FFFFFF;">
+                        <img src="${u.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);" referrerpolicy="no-referrer">
+                        <div style="flex: 1;">
+                            <h4 style="margin:0; font-family: var(--font-title); font-size: 1.2rem; color: #FFFFFF;">${u.name} ${u.isAdmin ? '⭐' : ''}</h4>
+                            <p style="margin:0; font-size: 0.9rem; color: rgba(255,255,255,0.8);">${u.email}</p>
+                            <p style="margin:5px 0 0; font-size: 0.9rem; color: #FFFFFF;">Status: ${status}</p>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            ${u.approved ?
                     `<button onclick="setApproval('${id}', false)" class="btn-secondary" style="font-size: 0.7rem; color: red; border-color: red; padding: 5px 10px;">Bloquear</button>` :
                     `<button onclick="setApproval('${id}', true)" class="btn-primary" style="font-size: 0.7rem; width: auto; padding: 5px 15px;">Aprovar</button>`
                 }
-                        <button onclick="toggleAdminRole('${id}', ${u.isAdmin || false})" 
-                            class="btn-secondary" 
-                            style="font-size: 0.7rem; padding: 5px 10px; ${id === currentUser.uid || isUserAdmin({ email: u.email }) ? 'opacity: 0.5; pointer-events: none;' : ''}">
-                            ${u.isAdmin ? 'Remover Admin' : 'Tornar Admin'}
-                        </button>
-                        ${id !== currentUser.uid && !isUserAdmin({ email: u.email }) ?
+                            <button onclick="toggleAdminRole('${id}', ${u.isAdmin || false})" 
+                                class="btn-secondary" 
+                                style="font-size: 0.7rem; padding: 5px 10px; ${id === currentUser.uid || isUserAdmin({ email: u.email }) ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                                ${u.isAdmin ? 'Remover Admin' : 'Tornar Admin'}
+                            </button>
+                            ${id !== currentUser.uid && !isUserAdmin({ email: u.email }) ?
                     `<button onclick="deleteUser('${id}')" class="btn-text" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 5px; background: none; border: none; cursor: pointer;">Excluir Usuário</button>` : ''
                 }
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
         }).join('');
     } catch (e) {
         console.error("Error loading users:", e);
         list.innerHTML = `
-            <p style='color:red; padding: 20px; text-align:center;'>
-                Erro ao carregar lista de usuários.<br>
-                <small style="font-size: 0.7rem; color: #666;">${e.message}</small>
-            </p>`;
+                <p style='color:red; padding: 20px; text-align:center;'>
+                    Erro ao carregar lista de usuários.<br>
+                    <small style="font-size: 0.7rem; color: #666;">${e.message}</small>
+                </p>`;
     }
 }
 
@@ -1030,13 +1030,13 @@ function showNotificationToast(data) {
     toast.id = 'notifToast';
     toast.className = 'notif-toast';
     toast.innerHTML = `
-        <img src="${photo}" referrerpolicy="no-referrer" class="notif-avatar">
-        <div class="notif-body">
-            <strong>${data.title || 'Nova publicação!'}</strong>
-            <p>${data.message}</p>
-        </div>
-        <button class="notif-close" onclick="this.parentElement.remove()">×</button>
-    `;
+            <img src="${photo}" referrerpolicy="no-referrer" class="notif-avatar">
+            <div class="notif-body">
+                <strong>${data.title || 'Nova publicação!'}</strong>
+                <p>${data.message}</p>
+            </div>
+            <button class="notif-close" onclick="this.parentElement.remove()">×</button>
+        `;
     toast.onclick = (e) => {
         if (e.target.classList.contains('notif-close')) return;
         toast.remove();
@@ -1312,30 +1312,30 @@ function showIOSInstallGuide() {
     guide.className = 'congrats-overlay';
     guide.style.cssText = 'display:flex; align-items:center; justify-content:center; z-index: 10000;';
     guide.innerHTML = `
-        <div class="congrats-card" style="max-width: 380px; text-align: center;">
-            <div class="congrats-icon" style="font-size: 3.5rem;">📲</div>
-            <h2 style="font-family: var(--font-title); font-size: 1.6rem; margin-bottom: 12px;">Instalar o Portal</h2>
-            <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">
-                Para receber notificações no iPhone, você precisa <strong>adicionar o Portal à Tela Inicial</strong>:
-            </p>
-            <div style="text-align: left; background: #f8f8f8; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
-                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
-                    <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">1️⃣</span>
-                    <span style="font-size: 0.9rem; color: #444;">Toque no botão <strong>Compartilhar</strong> (ícone <span style="font-size: 1.2rem;">⬆️</span>) na barra inferior do Safari</span>
+            <div class="congrats-card" style="max-width: 380px; text-align: center;">
+                <div class="congrats-icon" style="font-size: 3.5rem;">📲</div>
+                <h2 style="font-family: var(--font-title); font-size: 1.6rem; margin-bottom: 12px;">Instalar o Portal</h2>
+                <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">
+                    Para receber notificações no iPhone, você precisa <strong>adicionar o Portal à Tela Inicial</strong>:
+                </p>
+                <div style="text-align: left; background: #f8f8f8; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
+                        <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">1️⃣</span>
+                        <span style="font-size: 0.9rem; color: #444;">Toque no botão <strong>Compartilhar</strong> (ícone <span style="font-size: 1.2rem;">⬆️</span>) na barra inferior do Safari</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
+                        <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">2️⃣</span>
+                        <span style="font-size: 0.9rem; color: #444;">Role para baixo e toque em <strong>"Adicionar à Tela Inicial"</strong></span>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">3️⃣</span>
+                        <span style="font-size: 0.9rem; color: #444;">Abra o Portal pelo <strong>ícone na Tela Inicial</strong> e toque em <strong>"🔔 Ativar Notificações"</strong></span>
+                    </div>
                 </div>
-                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;">
-                    <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">2️⃣</span>
-                    <span style="font-size: 0.9rem; color: #444;">Role para baixo e toque em <strong>"Adicionar à Tela Inicial"</strong></span>
-                </div>
-                <div style="display: flex; align-items: flex-start; gap: 12px;">
-                    <span style="font-size: 1.5rem; min-width: 32px; text-align: center;">3️⃣</span>
-                    <span style="font-size: 0.9rem; color: #444;">Abra o Portal pelo <strong>ícone na Tela Inicial</strong> e toque em <strong>"🔔 Ativar Notificações"</strong></span>
+                <div class="congrats-actions">
+                    <button class="btn-primary" onclick="document.getElementById('iosInstallGuide').remove()" style="width: 100%;">Entendi!</button>
                 </div>
             </div>
-            <div class="congrats-actions">
-                <button class="btn-primary" onclick="document.getElementById('iosInstallGuide').remove()" style="width: 100%;">Entendi!</button>
-            </div>
-        </div>
-    `;
+        `;
     document.body.appendChild(guide);
 }
