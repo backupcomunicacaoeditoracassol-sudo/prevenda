@@ -16,7 +16,7 @@ firebase.initializeApp(firebaseConfig);
 let messaging = null;
 try {
     messaging = firebase.messaging();
-} catch(e) {
+} catch (e) {
     console.warn('Firebase Messaging não suportado neste contexto:', e.message);
 }
 
@@ -49,7 +49,7 @@ auth.onAuthStateChanged(async user => {
         currentUser = user;
         // Check for approval BEFORE showing the app
         const isApproved = await checkUserApproval();
-        
+
         if (isApproved) {
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('pendingScreen').style.display = 'none';
@@ -70,12 +70,12 @@ auth.onAuthStateChanged(async user => {
 
 async function checkUserApproval() {
     if (!currentUser) return false;
-    
+
     const isMasterAdmin = isUserAdmin(currentUser);
-    
+
     try {
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
-        
+
         if (!userDoc.exists) {
             // Criar registro inicial
             await db.collection('users').doc(currentUser.uid).set({
@@ -89,7 +89,7 @@ async function checkUserApproval() {
             sessionStorage.setItem('isAdmin', isMasterAdmin);
             return isMasterAdmin;
         }
-        
+
         const data = userDoc.data();
         const approved = data.approved === true;
         const isAdmin = data.isAdmin === true || isMasterAdmin;
@@ -122,7 +122,7 @@ function updateUIWithUser() {
     // Admin Check
     const userEmail = (currentUser.email || "").toLowerCase();
     const admin = sessionStorage.getItem('isAdmin') === 'true' || isUserAdmin(currentUser);
-    
+
     console.log("Auth Debug:", { name, userEmail, admin });
 
     if (admin) {
@@ -141,19 +141,19 @@ function updateUIWithUser() {
     // Set Name and Gendered Role in Challenges View
     const nameDisplay = document.getElementById('currentName');
     const roleDisplay = document.getElementById('currentRole');
-    
+
     if (nameDisplay) nameDisplay.innerText = name;
-    
+
     if (roleDisplay) {
         const male = isMale(name);
         roleDisplay.innerText = male ? "Escritor em destaque" : "Escritora em destaque";
-        
+
         // Update Brand/Logo dynamically
         const logo = document.getElementById('mainLogo');
         const authTitle = document.getElementById('authBrandTitle');
         if (logo) logo.innerText = male ? "Portal Escritores" : "Portal Escritoras";
         if (authTitle) authTitle.innerText = male ? "Portal dos Escritores" : "Portal das Escritoras";
-        
+
         // Update Document Title
         document.title = male ? "Portal do Escritor | Rede Social" : "Portal da Escritora | Rede Social";
     }
@@ -274,6 +274,63 @@ function switchTab(tab) {
 
 // --- FEED LOGIC ---
 
+// Compressão inteligente para caber no Firestore (1MB por documento)
+// Alvo: base64 < 700KB (sobra ~300KB para os outros campos do documento)
+async function compressImageForFirestore(file) {
+    const MAX_BASE64_SIZE = 700000; // 700KB em base64 (seguro para Firestore)
+    const MAX_WIDTH = 800;
+
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onerror = () => reject(new Error('Erro ao ler imagem'));
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onerror = () => reject(new Error('Formato de imagem inválido'));
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Calcular dimensões — nunca aumentar imagens pequenas
+                let width = img.width;
+                let height = img.height;
+                if (width > MAX_WIDTH) {
+                    height = Math.round(height * (MAX_WIDTH / width));
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Tentar com qualidade decrescente até caber
+                let quality = 0.7;
+                let result = canvas.toDataURL('image/jpeg', quality);
+
+                while (result.length > MAX_BASE64_SIZE && quality > 0.15) {
+                    quality -= 0.1;
+                    result = canvas.toDataURL('image/jpeg', quality);
+                    console.log(`Compressão: q=${quality.toFixed(1)}, tamanho=${(result.length / 1024).toFixed(0)}KB`);
+                }
+
+                // Se ainda for muito grande, reduzir resolução também
+                if (result.length > MAX_BASE64_SIZE) {
+                    const scale = 0.5;
+                    canvas.width = Math.round(width * scale);
+                    canvas.height = Math.round(height * scale);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    result = canvas.toDataURL('image/jpeg', 0.5);
+                    console.log(`Resolução reduzida: ${canvas.width}x${canvas.height}, tamanho=${(result.length / 1024).toFixed(0)}KB`);
+                }
+
+                console.log(`✅ Imagem final: ${(result.length / 1024).toFixed(0)}KB (q=${quality.toFixed(1)})`);
+                resolve(result);
+            };
+        };
+    });
+}
+
 async function createPost() {
     const content = document.getElementById('postContent').value;
     const imageFile = document.getElementById('postImage').files[0];
@@ -288,25 +345,8 @@ async function createPost() {
         let imageUrl = "";
 
         if (imageFile) {
-            // Convert to Base64 and Compress to fit Firestore 1MB limit
-            imageUrl = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(imageFile);
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const MAX_WIDTH = 1200; // Aumentado para HD
-                        const scale = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scale;
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        resolve(canvas.toDataURL('image/jpeg', 0.9)); // Aumentado para 90% de qualidade
-                    };
-                };
-            });
+            // Comprimir imagem de forma inteligente para caber no Firestore (limite 1MB por doc)
+            imageUrl = await compressImageForFirestore(imageFile);
         }
 
         if (editingPostId) {
@@ -598,15 +638,15 @@ async function loadComments(postId) {
 
 async function nukeAllPosts() {
     if (!confirm("⚠️ ATENÇÃO: Isso vai apagar TODAS as postagens de TODAS as escritoras permanentemente. Deseja continuar?")) return;
-    
+
     try {
         const snapshot = await db.collection('posts').get();
         if (snapshot.empty) return alert("O feed já está vazio.");
-        
+
         const batch = db.batch();
         snapshot.docs.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
-        
+
         alert("✅ Todas as postagens foram deletadas!");
         loadFeed();
     } catch (e) {
@@ -859,9 +899,9 @@ function getTerm(termA, termO) {
 async function loadUsersForAdmin() {
     const list = document.getElementById('usersList');
     if (!list) return;
-    
+
     list.innerHTML = "<div class='loading-spinner'>Buscando usuários...</div>";
-    
+
     try {
         // Tentar primeiro sem ordenação para evitar erros de índice ausente
         const snapshot = await db.collection('users').get();
@@ -869,38 +909,38 @@ async function loadUsersForAdmin() {
             list.innerHTML = "<p style='text-align:center; padding:20px;'>Nenhum usuário cadastrado.</p>";
             return;
         }
-        
+
         // Ordenar localmente se necessário, ou apenas exibir
         const docs = snapshot.docs;
-        
+
         list.innerHTML = docs.map(doc => {
             const u = doc.data();
             const id = doc.id;
-            const status = u.approved ? 
-                '<span style="color:green; font-weight:bold;">Aprovado</span>' : 
+            const status = u.approved ?
+                '<span style="color:green; font-weight:bold;">Aprovado</span>' :
                 '<span style="color:orange; font-weight:bold;">Pendente</span>';
-                
+
             return `
                 <div class="feed-card" style="padding: 20px; display: flex; align-items: center; gap: 15px;">
-                    <img src="${u.photo || 'https://ui-avatars.com/api/?name='+encodeURIComponent(u.name)}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" referrerpolicy="no-referrer">
+                    <img src="${u.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" referrerpolicy="no-referrer">
                     <div style="flex: 1;">
                         <h4 style="margin:0;">${u.name} ${u.isAdmin ? '⭐' : ''}</h4>
                         <p style="margin:0; font-size: 0.8rem; color: #888;">${u.email}</p>
                         <p style="margin:5px 0 0; font-size: 0.8rem;">Status: ${status}</p>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
-                        ${u.approved ? 
-                            `<button onclick="setApproval('${id}', false)" class="btn-secondary" style="font-size: 0.7rem; color: red; border-color: red; padding: 5px 10px;">Bloquear</button>` : 
-                            `<button onclick="setApproval('${id}', true)" class="btn-primary" style="font-size: 0.7rem; width: auto; padding: 5px 15px;">Aprovar</button>`
-                        }
+                        ${u.approved ?
+                    `<button onclick="setApproval('${id}', false)" class="btn-secondary" style="font-size: 0.7rem; color: red; border-color: red; padding: 5px 10px;">Bloquear</button>` :
+                    `<button onclick="setApproval('${id}', true)" class="btn-primary" style="font-size: 0.7rem; width: auto; padding: 5px 15px;">Aprovar</button>`
+                }
                         <button onclick="toggleAdminRole('${id}', ${u.isAdmin || false})" 
                             class="btn-secondary" 
-                            style="font-size: 0.7rem; padding: 5px 10px; ${id === currentUser.uid || isUserAdmin({email: u.email}) ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                            style="font-size: 0.7rem; padding: 5px 10px; ${id === currentUser.uid || isUserAdmin({ email: u.email }) ? 'opacity: 0.5; pointer-events: none;' : ''}">
                             ${u.isAdmin ? 'Remover Admin' : 'Tornar Admin'}
                         </button>
-                        ${id !== currentUser.uid && !isUserAdmin({email: u.email}) ? 
-                            `<button onclick="deleteUser('${id}')" class="btn-text" style="font-size: 0.7rem; color: #888; margin-top: 5px;">Excluir Usuário</button>` : ''
-                        }
+                        ${id !== currentUser.uid && !isUserAdmin({ email: u.email }) ?
+                    `<button onclick="deleteUser('${id}')" class="btn-text" style="font-size: 0.7rem; color: #888; margin-top: 5px;">Excluir Usuário</button>` : ''
+                }
                     </div>
                 </div>
             `;
@@ -917,7 +957,7 @@ async function loadUsersForAdmin() {
 
 async function setApproval(uid, status) {
     if (!confirm(`Deseja ${status ? 'APROVAR' : 'BLOQUEAR'} este usuário?`)) return;
-    
+
     try {
         await db.collection('users').doc(uid).update({ approved: status });
         loadUsersForAdmin();
@@ -928,7 +968,7 @@ async function setApproval(uid, status) {
 
 async function toggleAdminRole(uid, currentStatus) {
     if (!confirm(`Deseja ${currentStatus ? 'REMOVER' : 'TORNAR'} este usuário administrador?`)) return;
-    
+
     try {
         await db.collection('users').doc(uid).update({ isAdmin: !currentStatus });
         loadUsersForAdmin();
@@ -939,7 +979,7 @@ async function toggleAdminRole(uid, currentStatus) {
 
 async function deleteUser(uid) {
     if (!confirm("⚠️ ATENÇÃO: Isso excluirá o registro deste usuário permanentemente. Deseja continuar?")) return;
-    
+
     try {
         await db.collection('users').doc(uid).delete();
         loadUsersForAdmin();
@@ -1052,7 +1092,7 @@ const PUSH_RELAY_URL = 'https://script.google.com/macros/s/AKfycbzpfWlrGCgFkA_hp
 
 async function sendPushToAll(title, body, icon) {
     if (PUSH_RELAY_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT_DEPLOY') return;
-    
+
     try {
         // Buscar todos os tokens FCM de todos os usuários
         const snapshot = await db.collection('users').get();
@@ -1082,20 +1122,20 @@ async function sendPushToAll(title, body, icon) {
 
 // Detectar iOS
 function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
 // Detectar se está em modo PWA standalone (instalado na Home Screen)
 function isStandalone() {
-    return window.matchMedia('(display-mode: standalone)').matches || 
-           window.navigator.standalone === true;
+    return window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
 }
 
 // Verificar estado das notificações sem pedir permissão (chamado no initApp)
 function checkPushNotificationState() {
     if (!currentUser) return;
-    
+
     const btn = document.getElementById('notifPermBtn');
     if (!btn) return;
 
@@ -1141,7 +1181,7 @@ function checkPushNotificationState() {
 // Função chamada pelo botão "🔔 Ativar Notificações" (via gesto do usuário!)
 async function requestNotifPermission() {
     const btn = document.getElementById('notifPermBtn');
-    
+
     // iOS fora do standalone → guiar para instalar
     if (isIOS() && !isStandalone()) {
         showIOSInstallGuide();
@@ -1162,12 +1202,12 @@ async function requestNotifPermission() {
     try {
         // Pedir permissão (DEVE estar dentro de um evento de clique para iOS!)
         const permission = await Notification.requestPermission();
-        
+
         if (permission === 'granted') {
             console.log('✅ Permissão de notificação concedida!');
             await registerPushToken();
             setupForegroundMessages();
-            
+
             if (btn) {
                 btn.innerHTML = '✅ Notificações Ativas';
                 btn.style.background = 'rgba(46, 204, 113, 0.15)';
@@ -1217,7 +1257,7 @@ async function registerPushToken() {
         await navigator.serviceWorker.ready;
 
         // Obter token FCM
-        const token = await messaging.getToken({ 
+        const token = await messaging.getToken({
             vapidKey: VAPID_KEY,
             serviceWorkerRegistration: reg
         });
