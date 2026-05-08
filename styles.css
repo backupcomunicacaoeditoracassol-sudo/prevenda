@@ -1148,6 +1148,12 @@ body {
 .btn-text:hover { color: #888; }
 
 /* RESPONSIVE */
+@media (min-width: 901px) {
+    .auth-install-tip {
+        display: none !important;
+    }
+}
+
 .mobile-auth-header {
     display: none;
     text-align: center;
@@ -1476,17 +1482,17 @@ body {
     font-size: 1.2rem;
 }
 
+@media (min-width: 901px) {
+    .fixed-install-btn {
+        display: none !important;
+    }
+}
+
 @media (max-width: 600px) {
     .fixed-install-btn {
         bottom: 25px;
         right: 25px;
         padding: 12px 20px;
         font-size: 0.9rem;
-    }
-}
-
-@media (display-mode: standalone) {
-    .fixed-install-btn {
-        display: none !important;
     }
 }
