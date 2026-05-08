@@ -1,5 +1,5 @@
 :root {
-    --bg-color: #FDFCFB;
+    --bg-color: #F0EFEB;
     --card-bg: #FFFFFF;
     --text-main: #1A1A1A;
     --text-muted: #666666;
@@ -9,7 +9,7 @@
     --font-title: 'Yeseva One', serif;
     --font-body: 'Outfit', sans-serif;
     --font-handwriting: 'Caveat', cursive;
-    --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.05);
+    --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.08);
     --shadow-bold: 0 20px 40px rgba(179, 19, 18, 0.12);
 }
 
@@ -429,7 +429,7 @@ body {
     background: #fff;
     border-radius: 20px;
     margin-bottom: 30px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: var(--shadow-soft);
     overflow: hidden;
     width: 100%;
