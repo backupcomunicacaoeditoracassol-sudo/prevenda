@@ -498,7 +498,7 @@ async function loadFeed() {
                                 <button class="btn-dots" onclick="togglePostMenu('${doc.id}', event)">...</button>
                                 <div class="options-menu" id="menu-${doc.id}">
                                     <button onclick="editPost('${doc.id}')">Editar Postagem</button>
-                                    <button onclick="deletePost('${doc.id}')" style="color: var(--accent);">Excluir Postagem</button>
+                                    <button onclick="deletePost('${doc.id}')" style="color: #FFFFFF; opacity: 0.9;">Excluir Postagem</button>
                                 </div>
                             </div>
                         ` : ''}
