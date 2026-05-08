@@ -232,27 +232,35 @@ async function handleGoogleLogin() {
         </div>`;
 
     const provider = new firebase.auth.GoogleAuthProvider();
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || isStandalone();
 
     try {
-        if (isMobile) {
-            await auth.signInWithRedirect(provider);
-        } else {
-            try {
-                await auth.signInWithPopup(provider);
-            } catch (error) {
-                if (error.code === 'auth/popup-blocked') {
-                    await auth.signInWithRedirect(provider);
-                } else {
-                    throw error;
-                }
-            }
-        }
+        // Tenta popup primeiro em todos os dispositivos (é melhor para PWAs)
+        await auth.signInWithPopup(provider);
     } catch (error) {
-        console.error("Erro Google Login:", error);
-        alert("Erro no login com Google: " + error.message);
-        btn.disabled = false;
-        btn.innerHTML = originalText;
+        console.warn("Erro no Popup, tentando Redirecionamento:", error.code);
+        
+        // Se o popup foi bloqueado ou não é suportado, usa o redirecionamento
+        if (error.code === 'auth/popup-blocked' || 
+            error.code === 'auth/popup-closed-by-user' || 
+            error.code === 'auth/cancelled-popup-request') {
+            try {
+                await auth.signInWithRedirect(provider);
+            } catch (redirError) {
+                console.error("Erro fatal no Google Login:", redirError);
+                alert("Erro ao conectar com Google. Tente usar e-mail e senha.");
+            }
+        } else {
+            console.error("Erro Google Login:", error);
+            alert("Erro no login com Google: " + error.message);
+        }
+    } finally {
+        // Resetamos o botão apenas se não houve redirecionamento (que recarrega a página)
+        setTimeout(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }, 2000);
     }
 }
 
