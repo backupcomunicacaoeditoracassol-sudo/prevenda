@@ -275,62 +275,7 @@ function switchTab(tab) {
 
 // --- FEED LOGIC ---
 
-// Compressão inteligente para caber no Firestore (1MB por documento)
-// Alvo: base64 < 700KB (sobra ~300KB para os outros campos do documento)
-async function compressImageForFirestore(file) {
-    const MAX_BASE64_SIZE = 700000; // 700KB em base64 (seguro para Firestore)
-    const MAX_WIDTH = 800;
 
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onerror = () => reject(new Error('Erro ao ler imagem'));
-        reader.onload = (e) => {
-            const img = new Image();
-            img.src = e.target.result;
-            img.onerror = () => reject(new Error('Formato de imagem inválido'));
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                // Calcular dimensões — nunca aumentar imagens pequenas
-                let width = img.width;
-                let height = img.height;
-                if (width > MAX_WIDTH) {
-                    height = Math.round(height * (MAX_WIDTH / width));
-                    width = MAX_WIDTH;
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // Tentar com qualidade decrescente até caber
-                let quality = 0.7;
-                let result = canvas.toDataURL('image/jpeg', quality);
-
-                while (result.length > MAX_BASE64_SIZE && quality > 0.15) {
-                    quality -= 0.1;
-                    result = canvas.toDataURL('image/jpeg', quality);
-                    console.log(`Compressão: q=${quality.toFixed(1)}, tamanho=${(result.length / 1024).toFixed(0)}KB`);
-                }
-
-                // Se ainda for muito grande, reduzir resolução também
-                if (result.length > MAX_BASE64_SIZE) {
-                    const scale = 0.5;
-                    canvas.width = Math.round(width * scale);
-                    canvas.height = Math.round(height * scale);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    result = canvas.toDataURL('image/jpeg', 0.5);
-                    console.log(`Resolução reduzida: ${canvas.width}x${canvas.height}, tamanho=${(result.length / 1024).toFixed(0)}KB`);
-                }
-
-                console.log(`✅ Imagem final: ${(result.length / 1024).toFixed(0)}KB (q=${quality.toFixed(1)})`);
-                resolve(result);
-            };
-        };
-    });
-}
 
 async function createPost() {
     const content = document.getElementById('postContent').value;
@@ -346,9 +291,37 @@ async function createPost() {
         let imageUrl = "";
 
         if (imageFile) {
-            // Comprimir imagem de forma inteligente para caber no Firestore (limite 1MB por doc)
-            imageUrl = await compressImageForFirestore(imageFile);
+            btn.innerText = "Enviando imagem...";
+            // Usar a mesma URL do push_relay, mas com o payload de imagem
+            const base64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(imageFile);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+
+            const uploadPayload = {
+                imageBase64: base64,
+                fileName: imageFile.name,
+                mimeType: imageFile.type
+            };
+
+            const uploadResponse = await fetch(PUSH_RELAY_URL, {
+                method: 'POST',
+                body: JSON.stringify(uploadPayload),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain evita preflight options
+            });
+            
+            const uploadResult = await uploadResponse.json();
+            
+            if (uploadResult.status === 'success') {
+                imageUrl = uploadResult.url;
+            } else {
+                throw new Error("Erro no upload para o Drive: " + (uploadResult.message || 'Desconhecido'));
+            }
         }
+
+        btn.innerText = "Salvando...";
 
         if (editingPostId) {
             const updateData = { content: content };
