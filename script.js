@@ -1121,14 +1121,15 @@ async function sendPushToAll(title, body, icon) {
 
 // Detectar iOS
 function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return [
+        'iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'
+    ].includes(navigator.platform) || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
 }
 
-// Detectar se está em modo PWA standalone (instalado na Home Screen)
 function isStandalone() {
-    return window.matchMedia('(display-mode: standalone)').matches ||
-        window.navigator.standalone === true;
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true || 
+           document.referrer.includes('android-app://');
 }
 
 let deferredPrompt;
