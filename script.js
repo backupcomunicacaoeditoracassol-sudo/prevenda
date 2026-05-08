@@ -36,8 +36,8 @@ document.addEventListener('change', e => {
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Forçar persistência local para evitar perda de estado em PWAs e navegadores móveis
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+// O Firebase gerencia a persistência automaticamente. 
+// Forçar aqui pode causar erros de 'missing initial state' em alguns navegadores.
 
 // Google Apps Script for Uploads
 const BRIDGE_URL = "https://script.google.com/macros/s/AKfycbzmA2YS4fUM22Se2U7FPwAeSbFIFYLA_Er9sfVoWD5JVkBy-92va3Id9fDsdt0TuXxL/exec";
@@ -48,16 +48,8 @@ let editingPostId = null;
 
 // --- AUTH LOGIC ---
 
-// Tratar resultados de redirecionamento de forma mais robusta
-auth.getRedirectResult().then((result) => {
-    if (result && result.user) {
-        console.log("✅ Login via redirect detectado:", result.user.email);
-    }
-}).catch(error => {
-    if (error.code !== 'auth/missing-initial-state' && error.code !== 'auth/cancelled-popup-request') {
-        console.error("❌ Erro no retorno do redirecionamento:", error);
-    }
-});
+// O onAuthStateChanged é o método mais confiável para detectar o login, 
+// inclusive após redirecionamentos do Google.
 
 auth.onAuthStateChanged(async user => {
     console.log("🔄 Auth State Changed:", user ? user.email : "Desconectado");
