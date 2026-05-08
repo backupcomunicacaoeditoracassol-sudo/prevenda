@@ -1067,7 +1067,7 @@ async function markNotificationsRead() {
 }
 
 // URL do relay Apps Script para envio de push (atualizar após deploy)
-const PUSH_RELAY_URL = 'https://script.google.com/macros/s/AKfycbzpfWlrGCgFkA_hpilkleKAEJuee4Sv3EYb2s16iFRG1tFg-GyaIWLFJ22sgtaJfhNa/exec';
+const PUSH_RELAY_URL = 'https://script.google.com/macros/s/AKfycbzfK6tG_dl5eR5raCA2JY8iDQRqUSXb0NUHg6k0eneRENNO2_q_aXXd3s6KVJnT1cez/exec';
 
 async function sendPushToAll(title, body, icon) {
     if (PUSH_RELAY_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT_DEPLOY') return;
