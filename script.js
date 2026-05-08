@@ -313,9 +313,9 @@ async function createPost() {
                 body: JSON.stringify(uploadPayload),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain evita preflight options
             });
-            
+
             const uploadResult = await uploadResponse.json();
-            
+
             if (uploadResult.status === 'success') {
                 imageUrl = uploadResult.url;
             } else {
@@ -358,7 +358,7 @@ async function createPost() {
             // Enviar push via Apps Script relay
             const pushTitle = postTitle ? `📝 ${postTitle}` : '📝 Nova publicação!';
             console.log("Enviando push com titulo:", pushTitle);
-            
+
             sendPushToAll(
                 pushTitle,
                 `${currentUser.displayName || 'Admin'}: ${content.slice(0, 80)}${content.length > 80 ? '...' : ''}`,
@@ -469,16 +469,16 @@ async function loadFeed() {
                     ${post.title ? `<h3 class="post-title" style="margin: 0 0 8px 0; font-family: var(--font-title); font-size: 1.2rem; color: #111;">${post.title}</h3>` : ''}
                     <div class="post-content">${post.content}</div>
                     ${(() => {
-                        if (!post.imageUrl) return "";
-                        let renderUrl = post.imageUrl;
-                        if (renderUrl.includes('drive.google.com/uc')) {
-                            const match = renderUrl.match(/id=([^&]+)/);
-                            if (match && match[1]) {
-                                renderUrl = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
-                            }
+                    if (!post.imageUrl) return "";
+                    let renderUrl = post.imageUrl;
+                    if (renderUrl.includes('drive.google.com/uc')) {
+                        const match = renderUrl.match(/id=([^&]+)/);
+                        if (match && match[1]) {
+                            renderUrl = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
                         }
-                        return `<img src="${renderUrl}" class="post-image" referrerpolicy="no-referrer">`;
-                    })()}
+                    }
+                    return `<img src="${renderUrl}" class="post-image" referrerpolicy="no-referrer">`;
+                })()}
                     <div class="post-footer">
                         <button class="post-action ${hasLiked ? 'liked' : ''}" onclick="likePost('${doc.id}')">
                             <svg class="heart-icon" viewBox="0 0 24 24" width="22" height="22" fill="${hasLiked ? 'var(--accent)' : 'none'}" stroke="${hasLiked ? 'var(--accent)' : 'currentColor'}" stroke-width="2">
@@ -1248,7 +1248,7 @@ async function registerPushToken() {
     try {
         // Registrar o Service Worker (caminho dinâmico: local ou GitHub Pages)
         const isGHPages = location.hostname.includes('github.io') || location.pathname.startsWith('/prevenda');
-        const swPath  = isGHPages ? '/prevenda/sw.js' : '/sw.js';
+        const swPath = isGHPages ? '/prevenda/sw.js' : '/sw.js';
         const swScope = isGHPages ? '/prevenda/' : '/';
         const reg = await navigator.serviceWorker.register(swPath, { scope: swScope });
         console.log('Service Worker registrado:', reg.scope);
