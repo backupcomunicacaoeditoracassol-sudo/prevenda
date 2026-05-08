@@ -1157,25 +1157,25 @@ body {
 .mobile-auth-header {
     display: none;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     background: var(--accent);
-    padding: 25px 20px;
-    border-radius: 0 0 30px 30px;
+    padding: 35px 20px;
+    border-radius: 0 0 35px 35px;
     margin-top: -40px;
-    box-shadow: 0 10px 20px rgba(138, 14, 13, 0.15);
+    box-shadow: 0 10px 25px rgba(138, 14, 13, 0.2);
 }
 
 .mobile-auth-header h1 {
     font-family: var(--font-title);
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     color: #FFFFFF;
-    margin-bottom: 4px;
-    line-height: 1;
+    margin-bottom: 6px;
+    line-height: 1.1;
 }
 
 .mobile-auth-header p {
     color: rgba(255,255,255,0.9);
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     opacity: 0.8;
 }
 
@@ -1287,58 +1287,42 @@ body {
     }
 
     .auth-brand {
-        margin-bottom: 15px;
+        margin-bottom: 30px;
         text-align: center;
     }
 
     .auth-brand h2 {
-        font-size: 1.8rem;
-        margin-bottom: 0;
+        font-size: 2.2rem;
+        margin-bottom: 5px;
     }
 
     .auth-brand p {
-        font-size: 0.9rem;
-    }
-
-    .auth-install-tip {
-        padding: 15px;
-        margin-bottom: 20px;
-    }
-
-    .auth-install-tip p {
-        font-size: 0.85rem;
-        margin-bottom: 10px;
-    }
-
-    .btn-install-auth {
-        padding: 12px;
-        font-size: 0.9rem;
+        font-size: 1rem;
     }
 
     .auth-content { 
-        padding: 40px 15px 20px; 
-        align-items: flex-start;
-        overflow-y: auto;
+        padding: 40px 20px 30px; 
+        align-items: center;
     }
     .auth-container { 
         max-width: 100%; 
         margin: 0 auto;
     }
     .auth-form input {
-        padding: 12px 15px;
-        margin-bottom: 8px;
+        padding: 15px 18px;
+        margin-bottom: 12px;
     }
     .btn-primary {
-        padding: 14px;
+        padding: 18px;
     }
     .divider {
-        margin: 15px 0;
+        margin: 25px 0;
     }
     .btn-google {
-        padding: 12px;
+        padding: 15px;
     }
     .auth-footer {
-        margin-top: 15px;
+        margin-top: 25px;
     }
     .mobile-auth-header {
         margin-left: -20px;
@@ -1444,11 +1428,48 @@ body {
     0%, 100% { box-shadow: 0 0 0 0 rgba(179, 19, 18, 0.4); }
     50%       { box-shadow: 0 0 0 6px rgba(179, 19, 18, 0); }
 }
-/* Esconder botão de instalação se já estiver no modo standalone (PWA) */
-@media (display-mode: standalone) {
-    .fixed-install-btn {
-        display: none !important;
-    }
+.auth-install-corner {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #FFFFFF;
+    padding: 15px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(138, 14, 13, 0.6);
+    box-shadow: 0 10px 30px rgba(138, 14, 13, 0.15);
+    z-index: 2500;
+    max-width: 180px;
+    text-align: center;
+    animation: slideInCorner 0.5s ease-out;
+}
+
+@keyframes slideInCorner {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.auth-install-corner p {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.btn-install-mini {
+    width: 100%;
+    padding: 8px;
+    background: var(--accent-gradient);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+@media (min-width: 901px) {
+    .auth-install-corner { display: none !important; }
 }
 
 /* Botão de Instalação Fixo no Canto Superior Direito */

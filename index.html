@@ -58,43 +58,50 @@
                     <p>Entre para gerenciar sua jornada editorial.</p>
                 </div>
 
-                <!-- Bloco de Instalação na Auth -->
-                <div id="authInstallBlock" class="auth-install-tip" style="display: none;">
-                    <p>✨ Para uma melhor experiência e notificações:</p>
-                    <button onclick="handleInstallClick()" class="btn-install-auth">📲 Instalar Portal no Celular</button>
-                    <div class="divider">ou continue pelo navegador</div>
-                </div>
-
                 <!-- Login Form -->
                 <div id="loginForm" class="auth-form">
-                    <input type="email" id="loginEmail" placeholder="E-mail">
-                    <input type="password" id="loginPass" placeholder="Senha">
-                    <button onclick="handleEmailLogin()" class="btn-primary">Entrar</button>
-
-                    <div class="divider">ou</div>
-
                     <button onclick="handleGoogleLogin()" class="btn-google">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"
                             alt="Google">
                         Entrar com Google
                     </button>
 
+                    <div class="divider">ou entre com e-mail</div>
+
+                    <input type="email" id="loginEmail" placeholder="E-mail">
+                    <input type="password" id="loginPass" placeholder="Senha">
+                    <button onclick="handleEmailLogin()" class="btn-primary">Entrar</button>
+
                     <div class="auth-footer">
-                        Não tem conta? <span onclick="toggleAuthMode()">Cadastre-se</span>
+                        Não tem conta? <span onclick="toggleAuth('register')">Cadastre-se</span>
                     </div>
                 </div>
 
                 <!-- Register Form -->
                 <div id="registerForm" class="auth-form" style="display: none;">
-                    <input type="text" id="regName" placeholder="Seu nome completo">
+                    <input type="text" id="regName" placeholder="Seu Nome">
                     <input type="email" id="regEmail" placeholder="E-mail">
                     <input type="password" id="regPass" placeholder="Senha">
                     <button onclick="handleEmailRegister()" class="btn-primary">Criar Conta</button>
+
+                    <div class="divider">ou</div>
+
+                    <button onclick="handleGoogleLogin()" class="btn-google">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"
+                            alt="Google">
+                        Cadastrar com Google
+                    </button>
+
                     <div class="auth-footer">
-                        Já tem conta? <span onclick="toggleAuthMode()">Fazer Login</span>
+                        Já tem conta? <span onclick="toggleAuth('login')">Fazer Login</span>
                     </div>
                 </div>
-            </div>
+
+                <!-- Bloco de Instalação Reposicionado -->
+                <div id="authInstallBlock" class="auth-install-corner" style="display: none;">
+                    <p>✨ Instale o App no Celular</p>
+                    <button onclick="handleInstallClick()" class="btn-install-mini">📲 Instalar</button>
+                </div>  </div>
         </div>
     </div>
     <!-- Pending Approval Screen -->

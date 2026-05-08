@@ -82,6 +82,7 @@ function checkInstallButtonVisibility() {
     const installBtn = document.getElementById('pwaInstallBtn');
     const authInstallBlock = document.getElementById('authInstallBlock');
     const isInstalled = isStandalone();
+    const isAuthVisible = document.getElementById('authScreen').style.display === 'flex';
 
     if (isInstalled) {
         if (installBtn) installBtn.style.display = 'none';
@@ -89,10 +90,16 @@ function checkInstallButtonVisibility() {
         return;
     }
 
-    // Mostrar botões se não estiver instalado
+    // Se estiver na tela de login, mostra o bloquinho no canto
+    // Se estiver dentro do app, mostra o botão flutuante normal
     if (isIOS() || deferredPrompt) {
-        if (installBtn) installBtn.style.display = 'flex';
-        if (authInstallBlock) authInstallBlock.style.display = 'block';
+        if (isAuthVisible) {
+            if (authInstallBlock) authInstallBlock.style.display = 'block';
+            if (installBtn) installBtn.style.display = 'none';
+        } else {
+            if (authInstallBlock) authInstallBlock.style.display = 'none';
+            if (installBtn) installBtn.style.display = 'flex';
+        }
     }
 }
 
