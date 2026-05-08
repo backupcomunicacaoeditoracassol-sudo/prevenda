@@ -185,30 +185,92 @@ body {
     margin-bottom: 25px;
 }
 
-.access-btn {
-    margin-top: auto;
+.upload-container {
     width: 100%;
-    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    background: #FFF;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.upload-btn:hover {
     background: var(--accent);
+    color: #FFF;
+}
+
+.upload-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    background: #EEE;
+    border-color: #CCC;
+}
+
+.progress-wrapper {
+    width: 100%;
+    height: 6px;
+    background: #EEE;
+    display: none;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s ease;
+}
+
+.status-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 5px;
+    min-height: 1.2rem;
+}
+
+.access-btn {
+    margin-top: 5px;
+    width: 100%;
+    padding: 12px;
+    background: #1A1A1A;
     color: #fff;
     border-radius: 0;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 2px;
     transition: var(--transition);
-    border: 2px dashed rgba(255,255,255,0.3);
+    border: 1px solid #1A1A1A;
+    text-align: center;
+    text-decoration: none;
 }
 
 .writer-card:hover .access-btn {
-    background: var(--accent-dark);
-    padding-left: 20px;
+    background: transparent;
+    color: #1A1A1A;
 }
 
 .footer {
     text-align: center;
     margin-top: auto;
-    padding: 40px 0;
+    padding: 60px 0;
     border-top: 1px solid rgba(0,0,0,0.05);
     font-size: 0.8rem;
     color: #AAA;
