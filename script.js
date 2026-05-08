@@ -286,10 +286,17 @@ function confirmLogout() {
     }
 }
 
-function toggleAuthMode() {
-    const isLogin = document.getElementById('loginForm').style.display !== 'none';
-    document.getElementById('loginForm').style.display = isLogin ? 'none' : 'block';
-    document.getElementById('registerForm').style.display = isLogin ? 'block' : 'none';
+function toggleAuth(mode) {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    
+    if (mode === 'register') {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+    } else {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+    }
 }
 
 // --- NAVIGATION ---
