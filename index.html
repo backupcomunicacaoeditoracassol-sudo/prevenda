@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Portal da Escritora | Rede Social</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;600&family=Caveat:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
+</head>
+
+<body>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-overlay" style="display: none;">
+        <div class="auth-sidebar">
+            <h1 id="authBrandTitle">Portal das Escritoras</h1>
+            <p>Onde as histórias ganham vida...</p>
+        </div>
+        <div class="auth-content">
+            <div class="auth-container">
+                <div class="auth-brand">
+                    <h2>Bem-vinda</h2>
+                    <p>Entre para gerenciar sua jornada editorial.</p>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="auth-form">
+                    <input type="email" id="loginEmail" placeholder="E-mail">
+                    <input type="password" id="loginPass" placeholder="Senha">
+                    <button onclick="handleEmailLogin()" class="btn-primary">Entrar</button>
+
+                    <div class="divider">ou</div>
+
+                    <button onclick="handleGoogleLogin()" class="btn-google">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"
+                            alt="Google">
+                        Entrar com Google
+                    </button>
+
+                    <div class="auth-footer">
+                        Não tem conta? <span onclick="toggleAuthMode()">Cadastre-se</span>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="registerForm" class="auth-form" style="display: none;">
+                    <input type="text" id="regName" placeholder="Seu nome completo">
+                    <input type="email" id="regEmail" placeholder="E-mail">
+                    <input type="password" id="regPass" placeholder="Senha">
+                    <button onclick="handleEmailRegister()" class="btn-primary">Criar Conta</button>
+                    <div class="auth-footer">
+                        Já tem conta? <span onclick="toggleAuthMode()">Fazer Login</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Pending Approval Screen -->
+    <div id="pendingScreen" class="auth-overlay" style="display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px;">
+        <div class="auth-container" style="max-width: 500px;">
+            <div class="congrats-icon" style="font-size: 4rem; margin-bottom: 20px;">⏳</div>
+            <h2 style="font-family: var(--font-title); font-size: 2.5rem; color: var(--accent); margin-bottom: 20px;">Conta em Análise</h2>
+            <p style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px;">
+                Olá! Recebemos seu cadastro. Para manter a segurança e a exclusividade do portal, sua conta precisa ser aprovada por um administrador.
+            </p>
+            <p style="font-family: var(--font-handwriting); font-size: 1.5rem; color: var(--accent);">Aguarde, logo você poderá começar sua jornada!</p>
+            <button onclick="handleLogout()" class="btn-secondary" style="margin-top: 40px;">Voltar ao Início</button>
+        </div>
+    </div>
+
+    <!-- App Shell -->
+    <div id="app" style="display: none;">
+        <header class="main-header">
+            <div class="header-content">
+                <h1 class="logo" id="mainLogo">Portal Escritoras</h1>
+                <div class="user-profile" id="userProfileHeader">
+                    <div class="user-info">
+                        <img id="userAvatar" src="https://ui-avatars.com/api/?name=User" alt="Avatar"
+                            referrerpolicy="no-referrer">
+                        <span id="userName">Usuário</span>
+                    </div>
+                    <button onclick="confirmLogout()" class="btn-logout">Sair</button>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tab-nav">
+            <button class="tab-btn active" id="tabFeed" onclick="switchTab('feed')">
+                <span class="icon">✒️</span>
+                <span>Varal de Histórias</span>
+            </button>
+            <button class="tab-btn" id="tabChallenges" onclick="switchTab('challenges')">
+                <span class="icon">✨</span>
+                <span>Bastidores</span>
+            </button>
+            <button class="tab-btn admin-only" id="tabUsers" onclick="switchTab('users')" style="display: none;">
+                <span class="icon">👥</span>
+                <span>Gestão de Usuários</span>
+            </button>
+        </nav>
+
+        <main class="container">
+            <!-- Feed View -->
+            <section id="feedView" class="view active">
+                <div id="adminControls" style="display: none;" class="admin-panel">
+                    <div class="new-post-card">
+                        <textarea id="postContent" placeholder="O que há de novo hoje?"></textarea>
+                        <input type="file" id="postImage" accept="image/*" style="display: none;">
+                        <div class="post-actions">
+                            <label for="postImage" class="btn-secondary">📷 Adicionar Imagem</label>
+                            <span id="imageNamePreview"></span>
+                            <button onclick="createPost()" class="btn-primary"
+                                style="width: auto; padding: 12px 30px;">Publicar</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="feedList" class="feed-list">
+                    <!-- Posts will be injected here -->
+                    <div class="loading-spinner">Carregando feed...</div>
+                </div>
+            </section>
+
+            <!-- Challenges View -->
+            <section id="challengesView" class="view">
+                <div id="myChallenges">
+                    <div class="internal-progress-section">
+                        <p class="progress-title" id="progressGreeting">Sua trilha nos bastidores...</p>
+                        
+                        <div id="adminResetBtn" style="display: none; margin: 20px auto; gap: 10px; justify-content: center; padding: 10px; border-radius: 10px; background: #FFF0F0; border: 1px dashed var(--accent);">
+                            <button onclick="resetMyProgress()" class="btn-secondary" style="font-size: 0.7rem; padding: 5px 10px;">🔄 Resetar Meu Progresso</button>
+                            <button onclick="nukeAllPosts()" class="btn-secondary" style="font-size: 0.7rem; padding: 5px 10px; color: var(--accent); border-color: var(--accent); font-weight: bold;">⚠️ Deletar Todas as Postagens (Global)</button>
+                        </div>
+
+                        <p style="color: #888; font-style: italic; margin-top: 5px;">Transforme sua história em realidade, um vídeo por vez.</p>
+
+                        <div class="main-progress-container">
+                            <div class="main-progress-bar" id="mainProgressBar"></div>
+                        </div>
+                        <p class="progress-stats" id="progressStats">0 de 3 missões completadas</p>
+                    </div>
+
+                    <div class="detail-header"
+                        style="text-align: left; margin-bottom: 30px; padding-left: 10px; border-left: 4px solid var(--accent);">
+                        <h2 id="currentName" style="font-family: var(--font-title); font-size: 2rem;">Carregando...</h2>
+                        <p id="currentRole"
+                            style="font-family: var(--font-handwriting); font-size: 1.4rem; color: var(--accent);">
+                            Escritora em destaque</p>
+                    </div>
+
+                    <div class="slots-container">
+                        <div class="slot-card" id="slot-1" data-step="01">
+                            <h3 class="slot-title">Carreira de Escritora</h3>
+                            <p class="slot-desc">Conte-nos sobre sua trajetória e o que te move a escrever.</p>
+                            <p id="s1" class="status-txt"></p>
+                            <label for="f1" class="file-label" id="l1">📤 Subir Vídeo</label>
+                            <input type="file" id="f1" style="display:none"
+                                onchange="up(event, 1, 'Carreira de Escritora')">
+                            <span class="resend-btn" onclick="document.getElementById('f1').click()">Enviar novo
+                                vídeo</span>
+                            <div id="share-placeholder-1" class="share-placeholder"></div>
+                        </div>
+                        <div class="slot-card" id="slot-2" data-step="02">
+                            <h3 class="slot-title">Processo de Criação</h3>
+                            <p class="slot-desc">Conte sobre como foi o processo de criação do seu livro.</p>
+                            <p id="s2" class="status-txt"></p>
+                            <label for="f2" class="file-label" id="l2">📤 Subir Vídeo</label>
+                            <input type="file" id="f2" style="display:none"
+                                onchange="up(event, 2, 'Processo de Criação')">
+                            <span class="resend-btn" onclick="document.getElementById('f2').click()">Enviar novo
+                                vídeo</span>
+                            <div id="share-placeholder-2" class="share-placeholder"></div>
+                        </div>
+                        <div class="slot-card" id="slot-3" data-step="03">
+                            <h3 class="slot-title">Vídeo Conceito</h3>
+                            <p class="slot-desc">Vamos apresentar seu livro? Leia a sinopse ou conte a história do livro em um áudio (na edição, colocaremos as imagens do boneco passando na tela).</p>
+                            <p id="s3" class="status-txt"></p>
+                            <label for="f3" class="file-label" id="l3">📤 Subir Vídeo</label>
+                            <input type="file" id="f3" style="display:none" onchange="up(event, 3, 'Vídeo Conceito')">
+                            <span class="resend-btn" onclick="document.getElementById('f3').click()">Enviar novo
+                                vídeo</span>
+                            <div id="share-placeholder-3" class="share-placeholder"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Users Management View (Admin) -->
+            <section id="usersView" class="view">
+                <div class="admin-panel">
+                    <h2 style="font-family: var(--font-title); margin-bottom: 20px;">Aprovação de Contas</h2>
+                    <div id="usersList" class="feed-list">
+                        <div class="loading-spinner">Carregando usuários...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
