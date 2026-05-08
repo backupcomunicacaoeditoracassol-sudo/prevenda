@@ -48,45 +48,58 @@ let editingPostId = null;
 
 // --- AUTH LOGIC ---
 
-// Tratar resultados de redirecionamento (caso o popup tenha sido bloqueado anteriormente)
-auth.getRedirectResult().catch(error => {
-    if (error.code !== 'auth/missing-initial-state') {
-        console.error("Erro no retorno do redirecionamento:", error);
-        alert("Erro ao retornar do login: " + error.message);
+// Tratar resultados de redirecionamento de forma mais robusta
+auth.getRedirectResult().then((result) => {
+    if (result && result.user) {
+        console.log("✅ Login via redirect detectado:", result.user.email);
+    }
+}).catch(error => {
+    if (error.code !== 'auth/missing-initial-state' && error.code !== 'auth/cancelled-popup-request') {
+        console.error("❌ Erro no retorno do redirecionamento:", error);
     }
 });
 
 auth.onAuthStateChanged(async user => {
-    if (user) {
-        currentUser = user;
-        // Check for approval BEFORE showing the app
-        const isApproved = await checkUserApproval();
+    console.log("🔄 Auth State Changed:", user ? user.email : "Desconectado");
+    
+    try {
+        if (user) {
+            currentUser = user;
+            
+            // Mostrar tela de carregamento enquanto verifica
+            const splash = document.getElementById('splashScreen');
+            if (splash) splash.classList.remove('hidden');
 
-        if (isApproved) {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('pendingScreen').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            updateUIWithUser();
-            initApp();
+            const isApproved = await checkUserApproval();
+            console.log("🛡️ Status de Aprovação:", isApproved);
+
+            if (isApproved) {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('pendingScreen').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                updateUIWithUser();
+                initApp();
+            } else {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('app').style.display = 'none';
+                document.getElementById('pendingScreen').style.display = 'flex';
+            }
         } else {
-            document.getElementById('authScreen').style.display = 'none';
+            currentUser = null;
+            document.getElementById('authScreen').style.display = 'flex';
             document.getElementById('app').style.display = 'none';
-            document.getElementById('pendingScreen').style.display = 'flex';
+            document.getElementById('pendingScreen').style.display = 'none';
         }
-    } else {
-        document.getElementById('authScreen').style.display = 'flex';
-        document.getElementById('app').style.display = 'none';
-        document.getElementById('pendingScreen').style.display = 'none';
+    } catch (error) {
+        console.error("🚨 Erro crítico no Auth State Change:", error);
+    } finally {
+        // Sempre esconder o splash no final do processo
+        setTimeout(() => {
+            const splash = document.getElementById('splashScreen');
+            if (splash) splash.classList.add('hidden');
+            checkInstallButtonVisibility();
+        }, 800);
     }
-
-    // Esconde a tela de splash com delay para a animação ficar fluida
-    setTimeout(() => {
-        const splash = document.getElementById('splashScreen');
-        if (splash) splash.classList.add('hidden');
-        
-        // Verificar se deve mostrar o botão de instalação mesmo sem estar logado
-        checkInstallButtonVisibility();
-    }, 500);
 });
 
 function checkInstallButtonVisibility() {
