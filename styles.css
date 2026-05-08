@@ -1,0 +1,233 @@
+:root {
+    --bg-color: #FFFFFF;
+    --text-main: #1A1A1A;
+    --text-muted: #444;
+    --accent: #B31312; 
+    --accent-dark: #8B0000;
+    --card-bg: #FFFFFF;
+    --font-title: 'Playfair Display', serif;
+    --font-body: 'Outfit', sans-serif;
+    --font-handwriting: 'Caveat', cursive;
+    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png"); /* Subtle paper texture */
+    color: var(--text-main);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+.bg-decoration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(179, 19, 18, 0.03) 0%, transparent 100%);
+    z-index: -1;
+}
+
+/* Decorative Paper Clips/Elements */
+.bg-decoration::after {
+    content: "✍️";
+    position: absolute;
+    top: 10%;
+    right: 5%;
+    font-size: 4rem;
+    opacity: 0.05;
+    transform: rotate(15deg);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.header {
+    background-color: var(--accent);
+    color: #FFFFFF;
+    text-align: center;
+    padding: 100px 20px;
+    margin-bottom: 80px;
+    box-shadow: 0 10px 30px rgba(179, 19, 18, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Torn edge effect for header */
+.header::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: url("https://www.transparenttextures.com/patterns/binding-light.png");
+    background-color: var(--bg-color);
+    clip-path: polygon(0% 100%, 5% 40%, 10% 100%, 15% 30%, 20% 100%, 25% 50%, 30% 100%, 35% 20%, 40% 100%, 45% 60%, 50% 100%, 55% 10%, 60% 100%, 65% 40%, 70% 100%, 75% 30%, 80% 100%, 85% 50%, 90% 100%, 95% 20%, 100% 100%);
+}
+
+.campaign-label {
+    display: inline-block;
+    font-family: var(--font-handwriting);
+    font-size: 1.8rem;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+    transform: rotate(-3deg);
+}
+
+.title {
+    font-family: var(--font-title);
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-weight: 700;
+    margin-bottom: 15px;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #FFFFFF;
+    max-width: 700px;
+    margin: 0 auto;
+    font-weight: 400;
+    opacity: 0.95;
+    font-style: italic;
+}
+
+.writers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 60px;
+    padding: 0 40px;
+    margin-top: 40px;
+}
+
+.writer-card {
+    background: var(--card-bg);
+    border: 1px solid #DDD;
+    padding: 40px 30px;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.05);
+    background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+}
+
+/* Washi Tape Effect */
+.writer-card::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 100px;
+    height: 35px;
+    background: rgba(179, 19, 18, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 2;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Random Rotations for Collage Vibe */
+.writer-card:nth-child(odd) { transform: rotate(-1.5deg); }
+.writer-card:nth-child(even) { transform: rotate(1.5deg); }
+.writer-card:nth-child(3n) { transform: rotate(0.8deg); }
+
+.writer-card:hover {
+    transform: translateY(-10px) rotate(0deg) scale(1.02) !important;
+    box-shadow: 15px 15px 40px rgba(179, 19, 18, 0.1);
+    z-index: 10;
+}
+
+.photo-container {
+    width: 220px;
+    height: 220px;
+    border-radius: 0;
+    margin-bottom: 25px;
+    overflow: hidden;
+    border: 10px solid #fff;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+    transition: var(--transition);
+    position: relative;
+}
+
+.writer-name {
+    font-family: var(--font-title);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--text-main);
+}
+
+.writer-role {
+    font-family: var(--font-handwriting);
+    font-size: 1.4rem;
+    color: var(--accent);
+    margin-bottom: 25px;
+}
+
+.access-btn {
+    margin-top: auto;
+    width: 100%;
+    padding: 15px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: var(--transition);
+    border: 2px dashed rgba(255,255,255,0.3);
+}
+
+.writer-card:hover .access-btn {
+    background: var(--accent-dark);
+    padding-left: 20px;
+}
+
+.footer {
+    text-align: center;
+    margin-top: auto;
+    padding: 40px 0;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    font-size: 0.8rem;
+    color: #AAA;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+    .container { padding: 40px 15px; }
+    .title { font-size: 2.2rem; }
+    .writers-grid { grid-template-columns: 1fr; gap: 30px; }
+}
