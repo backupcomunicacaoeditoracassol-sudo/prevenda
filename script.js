@@ -152,11 +152,11 @@ function updateUIWithUser() {
         // Update Brand/Logo dynamically
         const logo = document.getElementById('mainLogo');
         const authTitle = document.getElementById('authBrandTitle');
-        if (logo) logo.innerText = male ? "Portal Escritores" : "Portal Escritoras";
-        if (authTitle) authTitle.innerText = male ? "Portal dos Escritores" : "Portal das Escritoras";
+        if (logo) logo.innerText = "Portal Pré-Venda";
+        if (authTitle) authTitle.innerText = "Portal Pré-Venda";
 
         // Update Document Title
-        document.title = male ? "Portal do Escritor | Rede Social" : "Portal da Escritora | Rede Social";
+        document.title = "Portal Pré-Venda";
     }
 }
 
@@ -780,7 +780,7 @@ async function shareAchievement(slotTitle) {
     };
 
     const achievementImg = achievementImages[slotTitle] || "";
-    const achievementText = customText || `✨ Conquista Desbloqueada! Acabei de completar o "${slotTitle}" da minha jornada no Portal da Escritora! 🖋️📖`;
+    const achievementText = customText || `✨ Conquista Desbloqueada! Acabei de completar o "${slotTitle}" da minha jornada no Portal Pré-Venda! 🖋️📖`;
 
     try {
         const postData = {
@@ -821,8 +821,7 @@ function showCongratsPopup(slotTitle) {
 
     // Escapar aspas simples para o onclick
     const escapedTitle = slotTitle.replace(/'/g, "\\'");
-    const portalTerm = getTerm("Escritora", "Escritor");
-    const defaultText = `✨ Conquista Desbloqueada! Acabei de completar o "${slotTitle}" da minha jornada no Portal ${isMale(currentUser.displayName) ? 'do' : 'da'} ${portalTerm}! 🖋️📖`;
+    const defaultText = `✨ Conquista Desbloqueada! Acabei de completar o "${slotTitle}" da minha jornada no Portal Pré-Venda! 🖋️📖`;
 
     overlay.innerHTML = `
         <div class="congrats-card">
@@ -1278,7 +1277,7 @@ function setupForegroundMessages() {
     messaging.onMessage((payload) => {
         console.log('Mensagem em foreground:', payload);
         showNotificationToast({
-            title: payload.notification?.title || 'Portal das Escritoras',
+            title: payload.notification?.title || 'Portal Pré-Venda',
             message: payload.notification?.body || 'Nova publicação no feed!',
             authorName: 'Portal',
             authorPhoto: payload.notification?.image || ''
