@@ -67,6 +67,12 @@ auth.onAuthStateChanged(async user => {
         document.getElementById('app').style.display = 'none';
         document.getElementById('pendingScreen').style.display = 'none';
     }
+
+    // Esconde a tela de splash com delay para a animação ficar fluida
+    setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        if (splash) splash.classList.add('hidden');
+    }, 500);
 });
 
 async function checkUserApproval() {
