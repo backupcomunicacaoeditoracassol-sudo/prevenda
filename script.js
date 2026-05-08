@@ -48,6 +48,14 @@ let editingPostId = null;
 
 // --- AUTH LOGIC ---
 
+// Tratar resultados de redirecionamento (caso o popup tenha sido bloqueado anteriormente)
+auth.getRedirectResult().catch(error => {
+    if (error.code !== 'auth/missing-initial-state') {
+        console.error("Erro no retorno do redirecionamento:", error);
+        alert("Erro ao retornar do login: " + error.message);
+    }
+});
+
 auth.onAuthStateChanged(async user => {
     if (user) {
         currentUser = user;
@@ -219,17 +227,32 @@ async function handleGoogleLogin() {
     btn.innerText = "Aguarde...";
 
     const provider = new firebase.auth.GoogleAuthProvider();
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || isStandalone();
+
     try {
         await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-        await auth.signInWithPopup(provider);
+        
+        // Se for celular ou PWA, redirecionar é mais confiável que popup
+        if (isMobile) {
+            await auth.signInWithRedirect(provider);
+        } else {
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                if (error.code === 'auth/popup-blocked') {
+                    console.warn("Popup bloqueado, tentando redirecionamento...");
+                    await auth.signInWithRedirect(provider);
+                } else {
+                    throw error;
+                }
+            }
+        }
     } catch (error) {
         console.error("Erro Google Login:", error);
-        if (error.code === 'auth/popup-blocked') {
-            alert("O popup de login foi bloqueado pelo navegador. Por favor, habilite popups para este site.");
-        } else {
-            alert("Erro no login com Google: " + error.message);
-        }
+        alert("Erro no login com Google: " + error.message);
     } finally {
+        // Se usou redirect, a página vai recarregar, então nem chegamos aqui.
+        // Se usou popup e terminou, restauramos o botão.
         btn.disabled = false;
         btn.innerHTML = originalText;
     }
