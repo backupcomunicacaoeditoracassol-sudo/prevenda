@@ -223,16 +223,18 @@ function updateUIWithUser() {
 async function handleGoogleLogin() {
     const btn = document.querySelector('.btn-google');
     const originalText = btn.innerHTML;
+    
     btn.disabled = true;
-    btn.innerText = "Aguarde...";
+    btn.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px; justify-content:center;">
+            <div class="splash-loader" style="width:16px; height:16px; border-width:2px; margin:0;"></div>
+            Entrando...
+        </div>`;
 
     const provider = new firebase.auth.GoogleAuthProvider();
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || isStandalone();
 
     try {
-        await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-        
-        // Se for celular ou PWA, redirecionar é mais confiável que popup
         if (isMobile) {
             await auth.signInWithRedirect(provider);
         } else {
@@ -240,7 +242,6 @@ async function handleGoogleLogin() {
                 await auth.signInWithPopup(provider);
             } catch (error) {
                 if (error.code === 'auth/popup-blocked') {
-                    console.warn("Popup bloqueado, tentando redirecionamento...");
                     await auth.signInWithRedirect(provider);
                 } else {
                     throw error;
@@ -250,9 +251,6 @@ async function handleGoogleLogin() {
     } catch (error) {
         console.error("Erro Google Login:", error);
         alert("Erro no login com Google: " + error.message);
-    } finally {
-        // Se usou redirect, a página vai recarregar, então nem chegamos aqui.
-        // Se usou popup e terminou, restauramos o botão.
         btn.disabled = false;
         btn.innerHTML = originalText;
     }
