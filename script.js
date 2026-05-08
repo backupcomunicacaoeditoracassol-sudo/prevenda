@@ -1099,7 +1099,7 @@ async function sendPushToAll(title, body, icon) {
         await fetch(PUSH_RELAY_URL, {
             method: 'POST',
             body: JSON.stringify({ tokens, title, body, icon }),
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain evita preflight options (CORS)
         });
         console.log(`Push enviado para ${tokens.length} dispositivos.`);
     } catch (e) {
