@@ -39,12 +39,12 @@ const db = firebase.firestore();
 // O Firebase gerencia a persistência automaticamente. 
 // Forçar aqui pode causar erros de 'missing initial state' em alguns navegadores.
 
-// Google Apps Script for Uploads
-const BRIDGE_URL = "https://script.google.com/macros/s/AKfycbzmA2YS4fUM22Se2U7FPwAeSbFIFYLA_Er9sfVoWD5JVkBy-92va3Id9fDsdt0TuXxL/exec";
-
 let currentUser = null;
 let sessionStatus = {};
 let editingPostId = null;
+
+// Pré-carregar provedor para evitar atrasos no clique
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // --- AUTH LOGIC ---
 
@@ -236,36 +236,39 @@ async function handleGoogleLogin() {
             Entrando...
         </div>`;
 
-    const provider = new firebase.auth.GoogleAuthProvider();
-
     try {
-        // Tenta popup primeiro em todos os dispositivos (é melhor para PWAs)
-        await auth.signInWithPopup(provider);
+        // Tenta popup em todos os casos para manter o contexto da página/PWA
+        await auth.signInWithPopup(googleProvider);
     } catch (error) {
-        console.warn("Erro no Popup, tentando Redirecionamento:", error.code);
+        console.warn("Erro no login Google:", error.code);
         
-        // Se o popup foi bloqueado ou não é suportado, usa o redirecionamento
         if (error.code === 'auth/popup-blocked' || 
             error.code === 'auth/popup-closed-by-user' || 
-            error.code === 'auth/cancelled-popup-request') {
-            try {
-                await auth.signInWithRedirect(provider);
-            } catch (redirError) {
-                console.error("Erro fatal no Google Login:", redirError);
-                alert("Erro ao conectar com Google. Tente usar e-mail e senha.");
+            error.code === 'auth/cancelled-popup-request' ||
+            error.code === 'auth/internal-error') {
+            
+            // Em vez de forçar o redirect que também falha no Chrome/iOS, 
+            // vamos oferecer a opção clara ou tentar o redirect como última instância
+            const isChromeIOS = /CriOS/i.test(navigator.userAgent);
+            if (isChromeIOS) {
+                alert("O Chrome no iPhone tem restrições de segurança que bloqueiam o login do Google. \n\nPor favor, use o navegador SAFARI ou entre com seu E-MAIL e SENHA.");
+            } else {
+                try {
+                    await auth.signInWithRedirect(googleProvider);
+                } catch (redirError) {
+                    alert("Não foi possível conectar com Google. Por favor, use e-mail e senha.");
+                }
             }
         } else {
-            console.error("Erro Google Login:", error);
             alert("Erro no login com Google: " + error.message);
         }
     } finally {
-        // Resetamos o botão apenas se não houve redirecionamento (que recarrega a página)
         setTimeout(() => {
             if (btn) {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
             }
-        }, 2000);
+        }, 1500);
     }
 }
 
