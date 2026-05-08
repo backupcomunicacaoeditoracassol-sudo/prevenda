@@ -338,19 +338,20 @@ body {
     top: 70px;
     left: 0;
     width: 100%;
-    height: 60px;
+    height: 75px;
     z-index: 999;
 }
 
 .tab-btn {
     flex: 1;
     max-width: 200px;
-    padding: 18px 10px;
+    padding: 12px 10px;
     border: none;
     background: none;
     font-family: var(--font-title);
     font-size: 1rem;
     font-weight: 700;
+    line-height: 1.2;
     color: rgba(255, 255, 255, 0.5);
     cursor: pointer;
     display: flex;
@@ -398,7 +399,7 @@ body {
 .container {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 160px 20px 100px;
+    padding: 170px 20px 100px;
 }
 
 .view {
@@ -1098,7 +1099,7 @@ body {
         top: 60px; 
         bottom: auto;
         width: 100%;
-        height: 55px;
+        height: 65px;
         background: var(--card-bg);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         padding-bottom: 0;
@@ -1115,7 +1116,7 @@ body {
         font-size: 1rem;
     }
 
-    .container { padding: 130px 15px 40px; }
+    .container { padding: 145px 15px 40px; }
     
     input, textarea, select {
         font-size: 16px !important;
