@@ -878,8 +878,8 @@ function updateProgressUI() {
 }
 
 async function up(ev, slot, title) {
-    const file = ev.target.files[0];
-    if (!file || !currentUser) return;
+    const files = Array.from(ev.target.files);
+    if (!files.length || !currentUser) return;
 
     const st = document.getElementById(`s${slot}`);
     const lb = document.getElementById(`l${slot}`);
@@ -888,82 +888,92 @@ async function up(ev, slot, title) {
 
     // Mostrar estado de carregamento
     if (loader) loader.classList.add('active');
-    if (loaderText) loaderText.innerText = "Iniciando conexão...";
-    st.innerText = "⏳ Preparando envio...";
     lb.style.opacity = "0.5";
     lb.style.pointerEvents = "none";
 
-    try {
-        // Passo 1: Obter URL de sessão de upload resumível do Apps Script
-        const initResponse = await fetch(PUSH_RELAY_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'init_resumable',
-                fileName: file.name,
-                mimeType: file.type,
-                origin: window.location.origin
-            }),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-        });
+    let successCount = 0;
 
-        const initResult = await initResponse.json();
-        if (initResult.status !== "success") throw new Error(initResult.message);
-
-        const uploadUrl = initResult.uploadUrl;
-
-        // Passo 2: Upload direto para o Google Drive via XHR (para progresso)
-        const xhr = new XMLHttpRequest();
-        xhr.open('PUT', uploadUrl, true);
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileLabel = `[${i + 1}/${files.length}]`;
         
-        xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-                const percent = Math.round((e.loaded / e.total) * 100);
-                if (loaderText) loaderText.innerText = `Subindo: ${percent}%`;
-                st.innerText = `⏳ Enviando (${percent}%)...`;
-            }
-        };
+        if (loaderText) loaderText.innerText = `${fileLabel} Iniciando conexão...`;
+        st.innerText = `⏳ Preparando vídeo ${i + 1} de ${files.length}...`;
 
-        xhr.onload = async () => {
-            console.log("Upload finalizado. Status:", xhr.status);
-            if (xhr.status === 200 || xhr.status === 201) {
-                // Upload completo
-                const updateObj = {};
-                updateObj[`progress.${slot}`] = true;
-                await db.collection('users').doc(currentUser.uid).update(updateObj);
+        try {
+            // Passo 1: Obter URL de sessão do Apps Script
+            const initResponse = await fetch(PUSH_RELAY_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'init_resumable',
+                    fileName: file.name,
+                    mimeType: file.type || 'video/mp4',
+                    origin: window.location.origin || ""
+                }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
 
-                st.innerText = "✅ Vídeo salvo no Drive!";
-                st.style.color = "green";
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            const initResult = await initResponse.json();
+            if (initResult.status !== "success") throw new Error(initResult.message);
 
-                sessionStatus[slot] = true;
-                updateProgressUI();
-                showCongratsPopup(title);
+            const uploadUrl = initResult.uploadUrl;
 
-                if (loader) loader.classList.remove('active');
-                lb.style.opacity = "1";
-                lb.style.pointerEvents = "auto";
-            } else {
-                console.error("Erro na resposta do Drive:", xhr.responseText);
-                st.innerText = `❌ Erro ${xhr.status}: Falha ao finalizar.`;
-                if (loader) loader.classList.remove('active');
-                lb.style.opacity = "1";
-                lb.style.pointerEvents = "auto";
-            }
-        };
+            // Passo 2: Upload direto via XHR (Sequencial)
+            await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('PUT', uploadUrl, true);
+                
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        if (loaderText) loaderText.innerText = `${fileLabel} Subindo: ${percent}%`;
+                        st.innerText = `⏳ Enviando ${i + 1}/${files.length} (${percent}%)...`;
+                    }
+                };
 
-        xhr.onerror = () => {
-            throw new Error("Erro de rede no upload.");
-        };
+                xhr.onload = () => {
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        successCount++;
+                        resolve();
+                    } else {
+                        reject(new Error(`Erro ${xhr.status} no arquivo ${i+1}`));
+                    }
+                };
 
-        xhr.send(file);
+                xhr.onerror = () => reject(new Error(`Erro de rede no arquivo ${i+1}`));
+                xhr.send(file);
+            });
 
-    } catch (e) {
-        st.innerText = "❌ Erro: " + e.message;
-        console.error("Erro detalhado no upload:", e);
-        if (loader) loader.classList.remove('active');
-        lb.style.opacity = "1";
-        lb.style.pointerEvents = "auto";
+        } catch (e) {
+            console.error(`Falha no arquivo ${i+1}:`, e);
+        }
     }
+
+    // Finalização após todos os arquivos
+    if (successCount > 0) {
+        try {
+            const updateObj = {};
+            updateObj[`progress.${slot}`] = true;
+            // Guardamos a marcação de que o bloco tem conteúdo
+            await db.collection('users').doc(currentUser.uid).update(updateObj);
+
+            st.innerText = `✅ ${successCount} vídeo(s) salvo(s) no Drive!`;
+            st.style.color = "green";
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+            sessionStatus[slot] = true;
+            updateProgressUI();
+            showCongratsPopup(title);
+        } catch (err) {
+            console.error("Erro ao atualizar progresso:", err);
+        }
+    } else {
+        st.innerText = "❌ Falha ao subir vídeos.";
+    }
+
+    if (loader) loader.classList.remove('active');
+    lb.style.opacity = "1";
+    lb.style.pointerEvents = "auto";
 }
 
 async function shareAchievement(slotTitle) {
