@@ -895,15 +895,19 @@ async function up(ev, slot, title) {
     reader.onload = async () => {
         const base64 = reader.result.split(',')[1];
         const payload = {
-            base64: base64,
-            type: file.type,
-            name: file.name,
+            imageBase64: base64,
+            mimeType: file.type,
+            fileName: file.name,
             writer: currentUser.displayName || currentUser.email,
             slot: title
         };
 
         try {
-            const response = await fetch(BRIDGE_URL, { method: 'POST', body: JSON.stringify(payload) });
+            const response = await fetch(PUSH_RELAY_URL, { 
+                method: 'POST', 
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
             const result = await response.json();
 
             if (result.status === "success") {
