@@ -886,92 +886,81 @@ async function up(ev, slot, title) {
     const loader = document.getElementById(`loader-${slot}`);
     const loaderText = loader ? loader.querySelector('span') : null;
 
-    // Mostrar estado de carregamento
     if (loader) loader.classList.add('active');
     lb.style.opacity = "0.5";
     lb.style.pointerEvents = "none";
 
     let successCount = 0;
+    const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB por pedaço (seguro para o Apps Script)
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const fileLabel = `[${i + 1}/${files.length}]`;
         
-        if (loaderText) loaderText.innerText = `${fileLabel} Iniciando conexão...`;
-        st.innerText = `⏳ Preparando vídeo ${i + 1} de ${files.length}...`;
-
         try {
-            // Passo 1: Obter URL de sessão do Apps Script
+            st.innerText = `⏳ Iniciando ${i + 1}/${files.length}...`;
+            
+            // 1. Iniciar sessão no Apps Script
             const initResponse = await fetch(PUSH_RELAY_URL, {
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'init_resumable',
                     fileName: file.name,
-                    mimeType: file.type || 'video/mp4',
-                    origin: window.location.origin || ""
+                    mimeType: file.type || 'video/mp4'
                 }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
-
             const initResult = await initResponse.json();
-            if (initResult.status !== "success") throw new Error(initResult.message);
-
+            if (initResult.status !== "success") throw new Error("Erro na sessão");
             const uploadUrl = initResult.uploadUrl;
-            console.log(`URL de Upload para vídeo ${i+1}:`, uploadUrl);
 
-            // Passo 2: Upload direto via XHR (Sequencial)
-            await new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('PUT', uploadUrl, true);
+            // 2. Enviar por pedaços (Proxy para evitar CORS)
+            for (let start = 0; start < file.size; start += CHUNK_SIZE) {
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.slice(start, end);
+                const chunkBase64 = await fileToBase64(chunk);
+                const range = `bytes ${start}-${end - 1}/${file.size}`;
                 
-                xhr.upload.onprogress = (e) => {
-                    if (e.lengthComputable) {
-                        const percent = Math.round((e.loaded / e.total) * 100);
-                        if (loaderText) loaderText.innerText = `${fileLabel} Subindo: ${percent}%`;
-                        st.innerText = `⏳ Enviando ${i + 1}/${files.length} (${percent}%)...`;
-                    }
-                };
+                const percent = Math.round((end / file.size) * 100);
+                if (loaderText) loaderText.innerText = `${fileLabel} ${percent}%`;
+                st.innerText = `⏳ Enviando ${i + 1}/${files.length} (${percent}%)...`;
 
-                xhr.onload = () => {
-                    if (xhr.status === 200 || xhr.status === 201) {
-                        successCount++;
-                        resolve();
-                    } else {
-                        console.error(`Erro ${xhr.status} no Drive:`, xhr.responseText);
-                        reject(new Error(`Erro ${xhr.status} ao finalizar`));
-                    }
-                };
-
-                xhr.onerror = () => reject(new Error(`Erro de rede/CORS`));
-                xhr.send(file);
-            });
+                const chunkResponse = await fetch(PUSH_RELAY_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'proxy_upload_chunk',
+                        uploadUrl: uploadUrl,
+                        chunkBase64: chunkBase64,
+                        contentRange: range
+                    }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                
+                const chunkResult = await chunkResponse.json();
+                // O Google Drive retorna 308 (Resume Incomplete) ou 200/201 (Finalizado)
+                if (chunkResult.status !== 308 && chunkResult.status !== 200 && chunkResult.status !== 201) {
+                    throw new Error(`Erro ${chunkResult.status} no pedaço`);
+                }
+            }
+            successCount++;
 
         } catch (e) {
             console.error(`Falha no arquivo ${i+1}:`, e);
             st.innerText = `❌ Erro no vídeo ${i+1}: ${e.message}`;
-            // Aguardamos um pouco para o usuário ler o erro antes de tentar o próximo ou finalizar
             await new Promise(r => setTimeout(r, 2000));
         }
     }
 
-    // Finalização após todos os arquivos
     if (successCount > 0) {
-        try {
-            const updateObj = {};
-            updateObj[`progress.${slot}`] = true;
-            // Guardamos a marcação de que o bloco tem conteúdo
-            await db.collection('users').doc(currentUser.uid).update(updateObj);
-
-            st.innerText = `✅ ${successCount} vídeo(s) salvo(s) no Drive!`;
-            st.style.color = "green";
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-
-            sessionStatus[slot] = true;
-            updateProgressUI();
-            showCongratsPopup(title);
-        } catch (err) {
-            console.error("Erro ao atualizar progresso:", err);
-        }
+        const updateObj = {};
+        updateObj[`progress.${slot}`] = true;
+        await db.collection('users').doc(currentUser.uid).update(updateObj);
+        st.innerText = `✅ ${successCount} vídeo(s) salvo(s)!`;
+        st.style.color = "green";
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        sessionStatus[slot] = true;
+        updateProgressUI();
+        showCongratsPopup(title);
     } else {
         st.innerText = "❌ Falha ao subir vídeos.";
     }
@@ -979,6 +968,16 @@ async function up(ev, slot, title) {
     if (loader) loader.classList.remove('active');
     lb.style.opacity = "1";
     lb.style.pointerEvents = "auto";
+}
+
+// Auxiliar para converter chunk em Base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+    });
 }
 
 async function shareAchievement(slotTitle) {
