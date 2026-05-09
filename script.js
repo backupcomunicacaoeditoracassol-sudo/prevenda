@@ -907,7 +907,9 @@ async function up(ev, slot, title) {
                 body: JSON.stringify({
                     action: 'init_resumable',
                     fileName: file.name,
-                    mimeType: file.type || 'video/mp4'
+                    mimeType: file.type || 'video/mp4',
+                    writer: currentUser.displayName || currentUser.email,
+                    blockTitle: title
                 }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
