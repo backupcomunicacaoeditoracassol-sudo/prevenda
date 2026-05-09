@@ -354,9 +354,7 @@ body {
 
 /* APP SHELL */
 .main-header {
-    background: var(--glass-red);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    background: var(--accent);
     padding: 0 25px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     position: fixed;
@@ -380,9 +378,18 @@ body {
 }
 
 .logo {
-    font-family: var(--font-title);
-    font-size: 1.6rem;
+    font-family: 'Yeseva One', var(--font-title);
+    font-size: 1.4rem;
+    line-height: 0.9;
+    text-transform: uppercase;
     color: #FFFFFF;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    opacity: 0.9;
 }
 
 .user-profile {
@@ -1237,8 +1244,23 @@ body {
 
 @media (max-width: 600px) {
     .main-header {
-        height: 60px;
-        padding: 0 15px;
+        height: 70px;
+        padding: 0 20px;
+        background: var(--accent);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-info span {
+        color: #FFFFFF;
+        font-weight: 600;
+    }
+
+    .btn-logout {
+        color: #FFFFFF;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 6px 12px;
     }
 
     .user-profile img {
@@ -1247,11 +1269,15 @@ body {
     }
 
     .logo {
-        font-size: 1.2rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 50vw;
+        font-size: 1.1rem;
+        line-height: 0.9;
+        white-space: normal;
+        overflow: visible;
+        max-width: none;
+    }
+
+    .logo span {
+        font-size: 0.75rem;
     }
 
     .header-content {
