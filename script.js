@@ -891,7 +891,7 @@ async function up(ev, slot, title) {
     lb.style.pointerEvents = "none";
 
     let successCount = 0;
-    const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB por pedaço (seguro para o Apps Script)
+    const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB (múltiplo exato de 256KB exigido pelo Google)
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -911,7 +911,9 @@ async function up(ev, slot, title) {
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
             const initResult = await initResponse.json();
-            if (initResult.status !== "success") throw new Error("Erro na sessão");
+            if (initResult.status !== "success") {
+                throw new Error("Erro na sessão: " + (initResult.message || "Desconhecido"));
+            }
             const uploadUrl = initResult.uploadUrl;
 
             // 2. Enviar por pedaços (Proxy para evitar CORS)
@@ -937,9 +939,10 @@ async function up(ev, slot, title) {
                 });
                 
                 const chunkResult = await chunkResponse.json();
-                // O Google Drive retorna 308 (Resume Incomplete) ou 200/201 (Finalizado)
+                
+                // 308 (Incompleto) ou 200/201 (Finalizado) são sucessos
                 if (chunkResult.status !== 308 && chunkResult.status !== 200 && chunkResult.status !== 201) {
-                    throw new Error(`Erro ${chunkResult.status} no pedaço`);
+                    throw new Error(`Erro ${chunkResult.status}: ${chunkResult.body || "Falha no pedaço"}`);
                 }
             }
             successCount++;
@@ -947,7 +950,7 @@ async function up(ev, slot, title) {
         } catch (e) {
             console.error(`Falha no arquivo ${i+1}:`, e);
             st.innerText = `❌ Erro no vídeo ${i+1}: ${e.message}`;
-            await new Promise(r => setTimeout(r, 2000));
+            await new Promise(r => setTimeout(r, 4000)); // Mais tempo para ler o erro
         }
     }
 
