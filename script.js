@@ -917,6 +917,7 @@ async function up(ev, slot, title) {
             if (initResult.status !== "success") throw new Error(initResult.message);
 
             const uploadUrl = initResult.uploadUrl;
+            console.log(`URL de Upload para vídeo ${i+1}:`, uploadUrl);
 
             // Passo 2: Upload direto via XHR (Sequencial)
             await new Promise((resolve, reject) => {
@@ -936,16 +937,20 @@ async function up(ev, slot, title) {
                         successCount++;
                         resolve();
                     } else {
-                        reject(new Error(`Erro ${xhr.status} no arquivo ${i+1}`));
+                        console.error(`Erro ${xhr.status} no Drive:`, xhr.responseText);
+                        reject(new Error(`Erro ${xhr.status} ao finalizar`));
                     }
                 };
 
-                xhr.onerror = () => reject(new Error(`Erro de rede no arquivo ${i+1}`));
+                xhr.onerror = () => reject(new Error(`Erro de rede/CORS`));
                 xhr.send(file);
             });
 
         } catch (e) {
             console.error(`Falha no arquivo ${i+1}:`, e);
+            st.innerText = `❌ Erro no vídeo ${i+1}: ${e.message}`;
+            // Aguardamos um pouco para o usuário ler o erro antes de tentar o próximo ou finalizar
+            await new Promise(r => setTimeout(r, 2000));
         }
     }
 
