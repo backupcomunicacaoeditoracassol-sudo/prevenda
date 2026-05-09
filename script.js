@@ -882,7 +882,10 @@ async function up(ev, slot, title) {
 
     const st = document.getElementById(`s${slot}`);
     const lb = document.getElementById(`l${slot}`);
+    const loader = document.getElementById(`loader-${slot}`);
 
+    // Show loading state
+    if (loader) loader.classList.add('active');
     st.innerText = "⏳ Salvando vídeo...";
     lb.style.opacity = "0.5";
     lb.style.pointerEvents = "none";
@@ -918,6 +921,8 @@ async function up(ev, slot, title) {
             st.innerText = "❌ Erro ao salvar.";
             console.error(e);
         } finally {
+            // Hide loading state
+            if (loader) loader.classList.remove('active');
             lb.style.opacity = "1";
             lb.style.pointerEvents = "auto";
         }
