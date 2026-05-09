@@ -35,6 +35,7 @@ document.addEventListener('change', e => {
 
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 // O Firebase gerencia a persistência automaticamente. 
 // Forçar aqui pode causar erros de 'missing initial state' em alguns navegadores.
@@ -883,54 +884,82 @@ async function up(ev, slot, title) {
     const st = document.getElementById(`s${slot}`);
     const lb = document.getElementById(`l${slot}`);
     const loader = document.getElementById(`loader-${slot}`);
+    const loaderText = loader ? loader.querySelector('span') : null;
 
-    // Show loading state
+    // Mostrar estado de carregamento
     if (loader) loader.classList.add('active');
-    st.innerText = "⏳ Salvando vídeo...";
+    if (loaderText) loaderText.innerText = "Iniciando conexão...";
+    st.innerText = "⏳ Preparando envio...";
     lb.style.opacity = "0.5";
     lb.style.pointerEvents = "none";
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-        const base64 = reader.result.split(',')[1];
-        const payload = {
-            imageBase64: base64,
-            mimeType: file.type,
-            fileName: file.name,
-            writer: currentUser.displayName || currentUser.email,
-            slot: title
+    try {
+        // Passo 1: Obter URL de sessão de upload resumível do Apps Script
+        const initResponse = await fetch(PUSH_RELAY_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'init_resumable',
+                fileName: file.name,
+                mimeType: file.type
+            }),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+
+        const initResult = await initResponse.json();
+        if (initResult.status !== "success") throw new Error(initResult.message);
+
+        const uploadUrl = initResult.uploadUrl;
+
+        // Passo 2: Upload direto para o Google Drive via XHR (para progresso)
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', uploadUrl, true);
+        
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                if (loaderText) loaderText.innerText = `Subindo: ${percent}%`;
+                st.innerText = `⏳ Enviando (${percent}%)...`;
+            }
         };
 
-        try {
-            const response = await fetch(PUSH_RELAY_URL, { 
-                method: 'POST', 
-                body: JSON.stringify(payload),
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-            });
-            const result = await response.json();
+        xhr.onload = async () => {
+            if (xhr.status === 200 || xhr.status === 201) {
+                // Upload completo
+                const updateObj = {};
+                updateObj[`progress.${slot}`] = true;
+                // Nota: O link direto do arquivo não é retornado pelo upload resumível simples sem mais metadados,
+                // mas salvamos o status de completo no Firestore.
+                await db.collection('users').doc(currentUser.uid).update(updateObj);
 
-            if (result.status === "success") {
-                st.innerText = "✅ Vídeo salvo com sucesso!";
+                st.innerText = "✅ Vídeo salvo no Drive!";
                 st.style.color = "green";
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
                 sessionStatus[slot] = true;
-                await saveLocalStatus(slot); // Passando o slot para update atômico
                 updateProgressUI();
-
                 showCongratsPopup(title);
-            } else { throw new Error(result.error); }
-        } catch (e) {
-            st.innerText = "❌ Erro ao salvar.";
-            console.error(e);
-        } finally {
-            // Hide loading state
-            if (loader) loader.classList.remove('active');
-            lb.style.opacity = "1";
-            lb.style.pointerEvents = "auto";
-        }
-    };
+
+                if (loader) loader.classList.remove('active');
+                lb.style.opacity = "1";
+                lb.style.pointerEvents = "auto";
+            } else {
+                throw new Error("Erro no upload direto: " + xhr.statusText);
+            }
+        };
+
+        xhr.onerror = () => {
+            throw new Error("Erro de rede no upload.");
+        };
+
+        xhr.send(file);
+
+    } catch (e) {
+        st.innerText = "❌ Erro ao salvar.";
+        console.error(e);
+        if (loader) loader.classList.remove('active');
+        lb.style.opacity = "1";
+        lb.style.pointerEvents = "auto";
+    }
 }
 
 async function shareAchievement(slotTitle) {
