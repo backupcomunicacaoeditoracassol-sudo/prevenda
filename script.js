@@ -900,7 +900,8 @@ async function up(ev, slot, title) {
             body: JSON.stringify({
                 action: 'init_resumable',
                 fileName: file.name,
-                mimeType: file.type
+                mimeType: file.type,
+                origin: window.location.origin
             }),
             headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
@@ -923,12 +924,11 @@ async function up(ev, slot, title) {
         };
 
         xhr.onload = async () => {
+            console.log("Upload finalizado. Status:", xhr.status);
             if (xhr.status === 200 || xhr.status === 201) {
                 // Upload completo
                 const updateObj = {};
                 updateObj[`progress.${slot}`] = true;
-                // Nota: O link direto do arquivo não é retornado pelo upload resumível simples sem mais metadados,
-                // mas salvamos o status de completo no Firestore.
                 await db.collection('users').doc(currentUser.uid).update(updateObj);
 
                 st.innerText = "✅ Vídeo salvo no Drive!";
@@ -943,7 +943,11 @@ async function up(ev, slot, title) {
                 lb.style.opacity = "1";
                 lb.style.pointerEvents = "auto";
             } else {
-                throw new Error("Erro no upload direto: " + xhr.statusText);
+                console.error("Erro na resposta do Drive:", xhr.responseText);
+                st.innerText = `❌ Erro ${xhr.status}: Falha ao finalizar.`;
+                if (loader) loader.classList.remove('active');
+                lb.style.opacity = "1";
+                lb.style.pointerEvents = "auto";
             }
         };
 
