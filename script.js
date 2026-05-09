@@ -891,7 +891,8 @@ async function up(ev, slot, title) {
     lb.style.pointerEvents = "none";
 
     let successCount = 0;
-    const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB (múltiplo exato de 256KB exigido pelo Google)
+    let lastError = null;
+    const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -900,7 +901,7 @@ async function up(ev, slot, title) {
         try {
             st.innerText = `⏳ Iniciando ${i + 1}/${files.length}...`;
             
-            // 1. Iniciar sessão no Apps Script
+            // 1. Iniciar sessão
             const initResponse = await fetch(PUSH_RELAY_URL, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -916,7 +917,7 @@ async function up(ev, slot, title) {
             }
             const uploadUrl = initResult.uploadUrl;
 
-            // 2. Enviar por pedaços (Proxy para evitar CORS)
+            // 2. Enviar por pedaços
             for (let start = 0; start < file.size; start += CHUNK_SIZE) {
                 const end = Math.min(start + CHUNK_SIZE, file.size);
                 const chunk = file.slice(start, end);
@@ -939,8 +940,6 @@ async function up(ev, slot, title) {
                 });
                 
                 const chunkResult = await chunkResponse.json();
-                
-                // 308 (Incompleto) ou 200/201 (Finalizado) são sucessos
                 if (chunkResult.status !== 308 && chunkResult.status !== 200 && chunkResult.status !== 201) {
                     throw new Error(`Erro ${chunkResult.status}: ${chunkResult.body || "Falha no pedaço"}`);
                 }
@@ -949,26 +948,29 @@ async function up(ev, slot, title) {
 
         } catch (e) {
             console.error(`Falha no arquivo ${i+1}:`, e);
+            lastError = e.message;
             st.innerText = `❌ Erro no vídeo ${i+1}: ${e.message}`;
-            await new Promise(r => setTimeout(r, 4000)); // Mais tempo para ler o erro
+            st.style.color = "red";
+            break; // Para no primeiro erro para facilitar o diagnóstico
         }
     }
 
-    if (successCount > 0) {
+    if (successCount === files.length) {
         const updateObj = {};
         updateObj[`progress.${slot}`] = true;
         await db.collection('users').doc(currentUser.uid).update(updateObj);
-        st.innerText = `✅ ${successCount} vídeo(s) salvo(s)!`;
+        st.innerText = `✅ Todos os ${successCount} vídeo(s) salvos!`;
         st.style.color = "green";
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         sessionStatus[slot] = true;
         updateProgressUI();
         showCongratsPopup(title);
+        if (loader) loader.classList.remove('active');
     } else {
-        st.innerText = "❌ Falha ao subir vídeos.";
+        // Se houve erro, o st.innerText já foi definido no catch
+        if (loader) loader.classList.remove('active');
     }
 
-    if (loader) loader.classList.remove('active');
     lb.style.opacity = "1";
     lb.style.pointerEvents = "auto";
 }
