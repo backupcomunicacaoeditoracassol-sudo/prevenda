@@ -954,8 +954,8 @@ async function up(ev, slot, title) {
         xhr.send(file);
 
     } catch (e) {
-        st.innerText = "❌ Erro ao salvar.";
-        console.error(e);
+        st.innerText = "❌ Erro: " + e.message;
+        console.error("Erro detalhado no upload:", e);
         if (loader) loader.classList.remove('active');
         lb.style.opacity = "1";
         lb.style.pointerEvents = "auto";
