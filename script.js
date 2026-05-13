@@ -464,6 +464,7 @@ async function createPost() {
             document.getElementById('cancelEditBtn')?.remove();
             btn.innerText = "Publicar";
         } else {
+            const isUserAnAdmin = sessionStorage.getItem('isAdmin') === 'true';
             const postRef = await db.collection('posts').add({
                 title: postTitle,
                 content: content,
@@ -472,6 +473,7 @@ async function createPost() {
                 authorEmail: (currentUser.email || "").toLowerCase(),
                 authorUid: currentUser.uid,
                 authorPhoto: currentUser.photoURL || "",
+                isAuthorAdmin: isUserAnAdmin,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 likes: 0
             });
@@ -560,16 +562,25 @@ async function loadFeed() {
             return;
         }
 
-        feedList.innerHTML = snapshot.docs.map(doc => {
+        // Ordenar: Pinned posts primeiro, depois por timestamp
+        const sortedDocs = snapshot.docs.sort((a, b) => {
+            const aData = a.data();
+            const bData = b.data();
+            if (aData.pinned && !bData.pinned) return -1;
+            if (!aData.pinned && bData.pinned) return 1;
+            return 0; // Mantém a ordem do timestamp desc
+        });
+
+        feedList.innerHTML = sortedDocs.map(doc => {
             const post = doc.data();
             const date = post.timestamp ? post.timestamp.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : "Agora";
             const authorImg = post.authorPhoto || `https://ui-avatars.com/api/?name=${post.authorName}&background=B31312&color=fff`;
 
             const userEmail = (currentUser.email || "").toLowerCase();
             const authorEmail = (post.authorEmail || "").toLowerCase();
-            const isAdmin = userEmail === 'backupcomunicacao.editoracassol@gmail.com';
+            const userIsAdmin = sessionStorage.getItem('isAdmin') === 'true';
             const isAuthor = userEmail === authorEmail;
-            const isAdminPost = authorEmail === 'backupcomunicacao.editoracassol@gmail.com';
+            const isAdminPost = post.isAuthorAdmin === true || authorEmail === 'backupcomunicacao.editoracassol@gmail.com';
 
             const hasLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
 
@@ -583,12 +594,13 @@ async function loadFeed() {
                                     <path fill="#0095f6" d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.67-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91c-1.31.67-2.19 1.91-2.19 3.34s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zM10 17L5.5 12.5l1.41-1.41L10 14.17l7.09-7.09L18.5 8.5 10 17z"/>
                                 </svg>
                             ` : ''}</h4>
-                            <span>${date}</span>
+                            <span>${date} ${post.pinned ? '<span class="pinned-tag">📌 Fixado</span>' : ''}</span>
                         </div>
-                        ${(isAdmin || isAuthor) ? `
+                        ${(userIsAdmin || isAuthor) ? `
                             <div class="post-options">
                                 <button class="btn-dots" onclick="togglePostMenu('${doc.id}', event)">...</button>
                                 <div class="options-menu" id="menu-${doc.id}">
+                                    ${userIsAdmin ? `<button onclick="togglePinPost('${doc.id}', ${post.pinned || false})">${post.pinned ? 'Desafixar Postagem' : 'Fixar Postagem'}</button>` : ''}
                                     <button onclick="editPost('${doc.id}')">Editar Postagem</button>
                                     <button onclick="deletePost('${doc.id}')" style="color: #FFFFFF; opacity: 0.9;">Excluir Postagem</button>
                                 </div>
@@ -733,6 +745,18 @@ async function deletePost(postId) {
             console.error("Error deleting post:", e);
             alert("Erro ao excluir postagem: " + e.message);
         }
+    }
+}
+
+async function togglePinPost(postId, currentPinned) {
+    try {
+        await db.collection('posts').doc(postId).update({
+            pinned: !currentPinned
+        });
+        loadFeed();
+    } catch (e) {
+        console.error("Error pinning post:", e);
+        alert("Erro ao fixar postagem.");
     }
 }
 
