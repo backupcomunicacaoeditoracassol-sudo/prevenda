@@ -427,33 +427,43 @@ async function createPost() {
         let imageUrl = "";
 
         if (imageFile) {
-            btn.innerText = "Enviando imagem...";
-            // Usar a mesma URL do push_relay, mas com o payload de imagem
-            const base64 = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(imageFile);
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = error => reject(error);
-            });
+            btn.innerText = "Preparando arquivo...";
+            
+            // 1. Se for imagem, tentar comprimir primeiro
+            let fileToUpload = imageFile;
+            if (imageFile.type.startsWith('image/')) {
+                try {
+                    fileToUpload = await compressImage(imageFile, 1200); // Max 1200px
+                } catch (e) {
+                    console.warn("Falha na compressão, enviando original:", e);
+                }
+            }
 
-            const uploadPayload = {
-                imageBase64: base64,
-                fileName: imageFile.name,
-                mimeType: imageFile.type
-            };
-
-            const uploadResponse = await fetch(PUSH_RELAY_URL, {
-                method: 'POST',
-                body: JSON.stringify(uploadPayload),
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain evita preflight options
-            });
-
-            const uploadResult = await uploadResponse.json();
-
-            if (uploadResult.status === 'success') {
-                imageUrl = uploadResult.url;
+            // 2. Upload (Resumable para arquivos > 2MB ou vídeos)
+            if (fileToUpload.size > 2 * 1024 * 1024 || fileToUpload.type.startsWith('video/')) {
+                imageUrl = await uploadFileResumable(fileToUpload, (prog) => {
+                    btn.innerText = `Enviando ${prog}%...`;
+                });
             } else {
-                throw new Error("Erro no upload para o Drive: " + (uploadResult.message || 'Desconhecido'));
+                // Upload Base64 simples para arquivos pequenos
+                const base64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(fileToUpload);
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                });
+
+                const uploadResponse = await fetch(PUSH_RELAY_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        imageBase64: base64,
+                        fileName: fileToUpload.name,
+                        mimeType: fileToUpload.type
+                    }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                const res = await uploadResponse.json();
+                if (res.status !== 'success') throw new Error(res.message || "Erro no upload");
+                imageUrl = res.url;
             }
         }
 
@@ -1124,6 +1134,95 @@ function showCongratsPopup(slotTitle) {
     } catch (err) {
         console.error("Confetti error:", err);
     }
+    // --- UTILITIES ---
+
+async function compressImage(file, maxWidth) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height = (maxWidth / width) * height;
+                    width = maxWidth;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                }, 'image/jpeg', 0.8);
+            };
+            img.onerror = reject;
+        };
+        reader.onerror = reject;
+    });
+}
+
+async function uploadFileResumable(file, onProgress) {
+    // 1. Iniciar sessão de upload
+    const initResp = await fetch(PUSH_RELAY_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+            writer: currentUser.displayName,
+            fileName: file.name,
+            mimeType: file.type,
+            action: 'init_resumable' // Alinhado com o push_relay.gs
+        }),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    });
+    
+    const initData = await initResp.json();
+    if (initData.status !== 'success') throw new Error("Erro ao iniciar upload: " + initData.message);
+    
+    const uploadUrl = initData.uploadUrl;
+    const chunkSize = 1024 * 1024; // 1MB por pedaço
+    const totalSize = file.size;
+    let offset = 0;
+
+    while (offset < totalSize) {
+        const chunk = file.slice(offset, offset + chunkSize);
+        const base64Chunk = await new Promise(r => {
+            const reader = new FileReader();
+            reader.readAsDataURL(chunk);
+            reader.onload = () => r(reader.result.split(',')[1]);
+        });
+
+        const resp = await fetch(PUSH_RELAY_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                uploadUrl: uploadUrl,
+                chunkBase64: base64Chunk,
+                contentRange: `bytes ${offset}-${offset + chunk.size - 1}/${totalSize}`,
+                action: 'proxy_upload_chunk' // Alinhado com o push_relay.gs
+            }),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+
+        const result = await resp.json();
+        if (result.status !== 200 && result.status !== 308) {
+             throw new Error("Erro no envio do pedaço: " + JSON.stringify(result));
+        }
+
+        offset += chunk.size;
+        if (onProgress) onProgress(Math.round((offset / totalSize) * 100));
+
+        // Se o status for 200/201, terminou
+        if (result.status === 200 || result.status === 201) {
+            const body = JSON.parse(result.body);
+            return `https://drive.google.com/thumbnail?id=${body.id}&sz=w1000`;
+        }
+    }
+}
 }
 
 function closeCongrats() {
