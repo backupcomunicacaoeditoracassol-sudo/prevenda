@@ -626,11 +626,14 @@ async function loadFeed() {
                     ${(() => {
                     if (!post.imageUrl) return "";
                     let renderUrl = post.imageUrl;
-                    if (renderUrl.includes('drive.google.com/uc') || renderUrl.includes('drive.google.com/thumbnail') || renderUrl.includes('drive.google.com/file')) {
-                        const match = renderUrl.match(/id=([^&/]+)/) || renderUrl.match(/\/d\/([^&/]+)/);
-                        if (match && match[1]) {
-                            // Formato LH3: O mais compatível para PWAs e Mobile
-                            renderUrl = `https://lh3.googleusercontent.com/d/${match[1]}=w1000`;
+                    if (renderUrl.includes('drive.google.com')) {
+                        const idMatch = renderUrl.match(/id=([^&/]+)/) || renderUrl.match(/\/d\/([^&/]+)/);
+                        if (idMatch && idMatch[1]) {
+                            const fileId = idMatch[1];
+                            // Tenta o formato LH3, mas tem um "plano B" no onerror
+                            return `<img src="https://lh3.googleusercontent.com/d/${fileId}=s1000" 
+                                         class="post-image" 
+                                         onerror="this.src='https://drive.google.com/thumbnail?id=${fileId}&sz=w1000'; this.onerror=null;">`;
                         }
                     }
                     return `<img src="${renderUrl}" class="post-image">`;
