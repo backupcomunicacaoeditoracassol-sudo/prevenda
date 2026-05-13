@@ -54,11 +54,11 @@ const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 auth.onAuthStateChanged(async user => {
     console.log("🔄 Auth State Changed:", user ? user.email : "Desconectado");
-    
+
     try {
         if (user) {
             currentUser = user;
-            
+
             // Mostrar tela de carregamento enquanto verifica
             const splash = document.getElementById('splashScreen');
             if (splash) splash.classList.remove('hidden');
@@ -142,7 +142,7 @@ async function checkUserApproval() {
                 progress: {}
             };
             await db.collection('users').doc(currentUser.uid).set(initialData);
-            
+
             sessionStatus = {};
             sessionStorage.setItem('isAdmin', isMasterAdmin);
             return isMasterAdmin;
@@ -211,6 +211,22 @@ function updateUIWithUser() {
 
     if (nameDisplay) nameDisplay.innerText = name;
 
+    // Injetar botão de notificação se necessário e suportado
+    if (Notification.permission !== 'granted' && !isIOS()) {
+        const profile = document.getElementById('userProfileHeader');
+        if (profile && !document.getElementById('notifPermBtn')) {
+            const btn = document.createElement('button');
+            btn.id = 'notifPermBtn';
+            btn.className = 'btn-logout'; 
+            btn.style.marginRight = '10px';
+            btn.style.background = 'var(--accent-gradient)';
+            btn.style.color = '#fff';
+            btn.innerHTML = '🔔 Notificações';
+            btn.onclick = requestNotifPermission;
+            profile.insertBefore(btn, profile.firstChild);
+        }
+    }
+
     if (roleDisplay) {
         const male = isMale(name);
         roleDisplay.innerText = male ? "Escritor em destaque" : "Escritora em destaque";
@@ -229,7 +245,7 @@ function updateUIWithUser() {
 async function handleGoogleLogin() {
     const btn = document.querySelector('.btn-google');
     const originalText = btn.innerHTML;
-    
+
     btn.disabled = true;
     btn.innerHTML = `
         <div style="display:flex; align-items:center; gap:10px; justify-content:center;">
@@ -242,12 +258,12 @@ async function handleGoogleLogin() {
         await auth.signInWithPopup(googleProvider);
     } catch (error) {
         console.warn("Erro no login Google:", error.code);
-        
-        if (error.code === 'auth/popup-blocked' || 
-            error.code === 'auth/popup-closed-by-user' || 
+
+        if (error.code === 'auth/popup-blocked' ||
+            error.code === 'auth/popup-closed-by-user' ||
             error.code === 'auth/cancelled-popup-request' ||
             error.code === 'auth/internal-error') {
-            
+
             // Em vez de forçar o redirect que também falha no Chrome/iOS, 
             // vamos oferecer a opção clara ou tentar o redirect como última instância
             const isChromeIOS = /CriOS/i.test(navigator.userAgent);
@@ -347,7 +363,7 @@ function confirmLogout() {
 function toggleAuth(mode) {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
-    
+
     if (mode === 'register') {
         loginForm.style.display = 'none';
         registerForm.style.display = 'block';
@@ -470,11 +486,13 @@ async function createPost() {
             });
 
             // Enviar push via Apps Script relay
-            sendPushToAll(
+            console.log("Iniciando envio de push...");
+            await sendPushToAll(
                 postTitle ? `✨ ${postTitle}` : '✨ Nova publicação!',
                 `${currentUser.displayName || 'Admin'}: ${content.slice(0, 80)}${content.length > 80 ? '...' : ''}`,
                 currentUser.photoURL || ''
             );
+            console.log("Processo de push finalizado.");
         }
 
         document.getElementById('postContent').value = "";
@@ -766,7 +784,7 @@ async function nukeAllPosts() {
 async function initApp() {
     // Progresso já foi carregado no checkUserApproval para ser instantâneo
     updateProgressUI();
-    
+
     // Backup: Se por algum motivo o checkUserApproval não carregou, tentamos sync aqui
     if (Object.keys(sessionStatus).length === 0) {
         syncProgressFromCloud();
@@ -815,10 +833,10 @@ async function syncProgressFromCloud() {
 
 async function saveLocalStatus(specificSlot = null) {
     if (!currentUser) return;
-    
+
     // Salvar localmente o estado completo
     localStorage.setItem(`portal_status_${currentUser.uid}`, JSON.stringify(sessionStatus));
-    
+
     try {
         if (specificSlot) {
             // ATUALIZAÇÃO ATÔMICA: Se um slot específico foi passado, atualiza apenas ele usando dot-notation
@@ -897,10 +915,10 @@ async function up(ev, slot, title) {
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const fileLabel = `[${i + 1}/${files.length}]`;
-        
+
         try {
             st.innerText = `⏳ Iniciando ${i + 1}/${files.length}...`;
-            
+
             // 1. Iniciar sessão
             const initResponse = await fetch(PUSH_RELAY_URL, {
                 method: 'POST',
@@ -925,7 +943,7 @@ async function up(ev, slot, title) {
                 const chunk = file.slice(start, end);
                 const chunkBase64 = await fileToBase64(chunk);
                 const range = `bytes ${start}-${end - 1}/${file.size}`;
-                
+
                 const percent = Math.round((end / file.size) * 100);
                 if (loaderText) loaderText.innerText = `${fileLabel} ${percent}%`;
                 st.innerText = `⏳ Enviando ${i + 1}/${files.length} (${percent}%)...`;
@@ -940,7 +958,7 @@ async function up(ev, slot, title) {
                     }),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                
+
                 const chunkResult = await chunkResponse.json();
                 if (chunkResult.status !== 308 && chunkResult.status !== 200 && chunkResult.status !== 201) {
                     throw new Error(`Erro ${chunkResult.status}: ${chunkResult.body || "Falha no pedaço"}`);
@@ -949,9 +967,9 @@ async function up(ev, slot, title) {
             successCount++;
 
         } catch (e) {
-            console.error(`Falha no arquivo ${i+1}:`, e);
+            console.error(`Falha no arquivo ${i + 1}:`, e);
             lastError = e.message;
-            st.innerText = `❌ Erro no vídeo ${i+1}: ${e.message}`;
+            st.innerText = `❌ Erro no vídeo ${i + 1}: ${e.message}`;
             st.style.color = "red";
             break; // Para no primeiro erro para facilitar o diagnóstico
         }
@@ -1328,12 +1346,20 @@ async function sendPushToAll(title, body, icon) {
 
         if (tokens.length === 0) return;
 
-        await fetch(PUSH_RELAY_URL, {
+        console.log(`Enviando para ${tokens.length} tokens via Relay...`);
+        const response = await fetch(PUSH_RELAY_URL, {
             method: 'POST',
             body: JSON.stringify({ tokens, title, body, icon }),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain evita preflight options (CORS)
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
-        console.log(`Push enviado para ${tokens.length} dispositivos.`);
+        
+        const result = await response.json();
+        console.log('Resultado do Relay:', result);
+        if (result.status === 'error') {
+            console.error('Erro no Relay:', result.message);
+        } else {
+            console.log(`Push enviado com sucesso para ${result.sent || 0} dispositivos.`);
+        }
     } catch (e) {
         console.error('Erro ao enviar push:', e);
     }
@@ -1349,9 +1375,9 @@ function isIOS() {
 }
 
 function isStandalone() {
-    return window.matchMedia('(display-mode: standalone)').matches || 
-           window.navigator.standalone === true || 
-           document.referrer.includes('android-app://');
+    return window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true ||
+        document.referrer.includes('android-app://');
 }
 
 let deferredPrompt;
@@ -1365,7 +1391,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 function handleInstallClick() {
     console.log("Install button clicked. deferredPrompt:", !!deferredPrompt, "isIOS:", isIOS());
-    
+
     if (isIOS()) {
         showIOSInstallGuide();
     } else if (deferredPrompt) {
@@ -1389,7 +1415,7 @@ function showGenericInstallGuide() {
     guide.id = 'genericInstallGuide';
     guide.className = 'congrats-overlay';
     guide.style.cssText = 'display:flex; align-items:center; justify-content:center; z-index: 10000;';
-    
+
     // Ícone de Menu (Três pontos) do Android
     const menuIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block; vertical-align:middle;"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg>`;
 
@@ -1423,17 +1449,19 @@ function checkPushNotificationState() {
     if (!currentUser) return;
 
     const installBtn = document.getElementById('pwaInstallBtn');
-    
-    // Se já estiver em standalone, nunca mostrar o botão de instalação
-    if (isStandalone()) {
-        if (installBtn) installBtn.style.display = 'none';
-        
-        // Se já tiver permissão de notificação, registrar token silenciosamente
-        if (Notification.permission === 'granted') {
-            registerPushToken();
-            setupForegroundMessages();
-        }
-        return;
+
+    // Se já estiver em standalone, esconde o botão de instalar
+    if (isStandalone() && installBtn) {
+        installBtn.style.display = 'none';
+    }
+
+    // Se já tiver permissão, registra o token (independente de ser standalone ou não, exceto iOS que exige standalone)
+    if (Notification.permission === 'granted') {
+        console.log('🔔 Permissão já existente, registrando token...');
+        registerPushToken();
+        setupForegroundMessages();
+    } else {
+        console.log('🔔 Notificações ainda não autorizadas neste navegador.');
     }
 
     // Se for iOS fora de standalone, mostrar botão de instalação
@@ -1535,10 +1563,12 @@ async function registerPushToken() {
                 fcmTokens: firebase.firestore.FieldValue.arrayUnion(token),
                 lastTokenUpdate: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('✅ FCM Token salvo:', token.slice(-12));
+            console.log('✅ FCM Token salvo com sucesso!');
+        } else {
+            console.warn('⚠️ Nenhum token FCM gerado.');
         }
     } catch (e) {
-        console.error('Erro ao registrar push token:', e);
+        console.error('❌ Erro ao registrar push token:', e);
     }
 }
 
@@ -1564,7 +1594,7 @@ function showIOSInstallGuide() {
     guide.id = 'iosInstallGuide';
     guide.className = 'congrats-overlay';
     guide.style.cssText = 'display:flex; align-items:center; justify-content:center; z-index: 10000;';
-    
+
     // Ícone de Compartilhar do Safari (SVG Realista)
     const shareIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin: 0 2px;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>`;
 
