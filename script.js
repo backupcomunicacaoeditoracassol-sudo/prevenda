@@ -569,6 +569,16 @@ async function loadFeed() {
     const feedList = document.getElementById('feedList');
     if (!feedList) return;
 
+    // Segurança: Esperar o usuário estar carregado
+    if (!currentUser) {
+        feedList.innerHTML = "<p style='text-align:center; color:#888; padding: 40px;'>Aguardando autenticação...</p>";
+        // Tentar carregar novamente em 1 segundo se ainda estivermos na aba feed
+        setTimeout(() => {
+            if (document.getElementById('feedView')?.classList.contains('active')) loadFeed();
+        }, 1000);
+        return;
+    }
+
     try {
         const snapshot = await db.collection('posts').orderBy('timestamp', 'desc').get();
         if (snapshot.empty) {
