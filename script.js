@@ -1248,7 +1248,6 @@ async function uploadFileResumable(file, onProgress) {
         }
     }
 }
-}
 
 function closeCongrats() {
     const overlay = document.getElementById('congratsOverlay');
