@@ -586,17 +586,24 @@ async function loadFeed() {
         });
 
         feedList.innerHTML = sortedDocs.map(doc => {
-            const post = doc.data();
-            const date = post.timestamp ? post.timestamp.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : "Agora";
-            const authorImg = post.authorPhoto || `https://ui-avatars.com/api/?name=${post.authorName}&background=B31312&color=fff`;
+            try {
+                const post = doc.data();
+                let date = "Agora";
+                try {
+                    if (post.timestamp && typeof post.timestamp.toDate === 'function') {
+                        date = post.timestamp.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    }
+                } catch (e) { console.warn("Erro na data do post:", doc.id); }
 
-            const userEmail = (currentUser.email || "").toLowerCase();
-            const authorEmail = (post.authorEmail || "").toLowerCase();
-            const userIsAdmin = sessionStorage.getItem('isAdmin') === 'true';
-            const isAuthor = userEmail === authorEmail;
-            const isAdminPost = post.isAuthorAdmin === true || adminEmailsList.includes(authorEmail);
+                const authorImg = post.authorPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.authorName || 'User')}&background=B31312&color=fff`;
 
-            const hasLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
+                const userEmail = (currentUser.email || "").toLowerCase();
+                const authorEmail = (post.authorEmail || "").toLowerCase();
+                const userIsAdmin = sessionStorage.getItem('isAdmin') === 'true';
+                const isAuthor = userEmail === authorEmail;
+                const isAdminPost = post.isAuthorAdmin === true || (authorEmail && adminEmailsList.includes(authorEmail));
+
+                const hasLiked = post.likedBy && Array.isArray(post.likedBy) && post.likedBy.includes(currentUser.uid);
 
             return `
                 <div class="feed-card ${isAdminPost ? 'admin-post' : ''}" id="post-${doc.id}">
@@ -652,16 +659,18 @@ async function loadFeed() {
                         </button>
                     </div>
                     <div class="comments-section" id="comments-${doc.id}">
-                        <div class="comments-list" id="list-${doc.id}">
-                            <!-- Comments injected here -->
-                        </div>
+                        <div class="comments-list" id="list-${doc.id}"></div>
                         <div class="comment-input-area">
                             <input type="text" id="input-${doc.id}" placeholder="Escreva um comentário...">
                             <button onclick="addComment('${doc.id}')">Enviar</button>
                         </div>
                     </div>
                 </div>
-            `;
+                `;
+            } catch (err) {
+                console.error("Erro ao renderizar post:", doc.id, err);
+                return ""; // Pula post problemático
+            }
         }).join('');
     } catch (error) {
         console.error("Erro ao carregar feed:", error);
