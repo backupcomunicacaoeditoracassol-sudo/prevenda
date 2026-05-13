@@ -1157,7 +1157,9 @@ function showCongratsPopup(slotTitle) {
     } catch (err) {
         console.error("Confetti error:", err);
     }
-    // --- UTILITIES ---
+}
+
+// --- UTILITIES ---
 
 async function compressImage(file, maxWidth) {
     return new Promise((resolve, reject) => {
