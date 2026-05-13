@@ -43,6 +43,7 @@ const storage = firebase.storage();
 let currentUser = null;
 let sessionStatus = {};
 let editingPostId = null;
+let adminEmailsList = ['backupcomunicacao.editoracassol@gmail.com'];
 
 // Pré-carregar provedor para evitar atrasos no clique
 const googleProvider = new firebase.auth.GoogleAuthProvider();
@@ -71,6 +72,7 @@ auth.onAuthStateChanged(async user => {
                 document.getElementById('pendingScreen').style.display = 'none';
                 document.getElementById('app').style.display = 'block';
                 updateUIWithUser();
+                await fetchAdminEmails();
                 initApp();
             } else {
                 document.getElementById('authScreen').style.display = 'none';
@@ -580,9 +582,7 @@ async function loadFeed() {
             const authorEmail = (post.authorEmail || "").toLowerCase();
             const userIsAdmin = sessionStorage.getItem('isAdmin') === 'true';
             const isAuthor = userEmail === authorEmail;
-            const isAdminPost = post.isAuthorAdmin === true || 
-                               authorEmail === 'backupcomunicacao.editoracassol@gmail.com' || 
-                               (post.authorName && post.authorName.includes('Gisella'));
+            const isAdminPost = post.isAuthorAdmin === true || adminEmailsList.includes(authorEmail);
 
             const hasLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
 
@@ -1146,6 +1146,17 @@ function isUserAdmin(user) {
     const email = (user.email || "").toLowerCase();
     // Apenas o e-mail principal é Super Admin fixo por segurança
     return email === 'backupcomunicacao.editoracassol@gmail.com';
+}
+
+async function fetchAdminEmails() {
+    try {
+        const snapshot = await db.collection('users').where('isAdmin', '==', true).get();
+        const emails = snapshot.docs.map(doc => (doc.data().email || "").toLowerCase()).filter(e => e);
+        adminEmailsList = [...new Set([...emails, 'backupcomunicacao.editoracassol@gmail.com'])];
+        console.log("Admins identificados:", adminEmailsList.length);
+    } catch (e) {
+        console.error("Erro ao buscar lista de admins:", e);
+    }
 }
 
 function isMale(name) {

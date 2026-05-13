@@ -573,6 +573,13 @@ body {
     padding-top: 20px;
 }
 
+#imageNamePreview {
+    color: #FFFFFF;
+    font-size: 0.85rem;
+    margin-left: 10px;
+    opacity: 0.9;
+}
+
 .btn-secondary {
     display: inline-flex;
     align-items: center;
@@ -613,6 +620,19 @@ body {
     font-size: 0.85rem;
     color: #FFFFFF;
     opacity: 0.85;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pinned-tag {
+    background: #FFFFFF;
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
 /* FEED CARDS */
