@@ -580,7 +580,9 @@ async function loadFeed() {
             const authorEmail = (post.authorEmail || "").toLowerCase();
             const userIsAdmin = sessionStorage.getItem('isAdmin') === 'true';
             const isAuthor = userEmail === authorEmail;
-            const isAdminPost = post.isAuthorAdmin === true || authorEmail === 'backupcomunicacao.editoracassol@gmail.com';
+            const isAdminPost = post.isAuthorAdmin === true || 
+                               authorEmail === 'backupcomunicacao.editoracassol@gmail.com' || 
+                               (post.authorName && post.authorName.includes('Gisella'));
 
             const hasLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
 
