@@ -192,9 +192,9 @@
                     <div class="new-post-card">
                         <input type="text" id="postTitle" placeholder="Título (opcional)" style="width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; font-family: var(--font-body); font-size: 1rem; box-sizing: border-box; outline: none;">
                         <textarea id="postContent" placeholder="O que há de novo hoje?"></textarea>
-                        <input type="file" id="postImage" accept="image/*" style="display: none;">
+                        <input type="file" id="postImage" accept="image/*,video/*" style="display: none;" onchange="updateFileName(this)">
                         <div class="post-actions">
-                            <label for="postImage" class="btn-secondary">📷 Adicionar Imagem</label>
+                            <label for="postImage" class="btn-secondary">📷 Anexar Arquivo</label>
                             <span id="imageNamePreview"></span>
                             <button onclick="createPost()" class="btn-primary"
                                 style="width: auto; padding: 12px 30px;">Publicar</button>
