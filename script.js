@@ -212,7 +212,7 @@ function updateUIWithUser() {
     if (nameDisplay) nameDisplay.innerText = name;
 
     // Injetar botão de notificação se necessário e suportado
-    if (Notification.permission !== 'granted' && !isIOS()) {
+    if (Notification.permission !== 'granted' && (!isIOS() || isStandalone())) {
         const profile = document.getElementById('userProfileHeader');
         if (profile && !document.getElementById('notifPermBtn')) {
             const btn = document.createElement('button');
