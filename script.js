@@ -626,13 +626,14 @@ async function loadFeed() {
                     ${(() => {
                     if (!post.imageUrl) return "";
                     let renderUrl = post.imageUrl;
-                    if (renderUrl.includes('drive.google.com/uc')) {
-                        const match = renderUrl.match(/id=([^&]+)/);
+                    if (renderUrl.includes('drive.google.com/uc') || renderUrl.includes('drive.google.com/thumbnail') || renderUrl.includes('drive.google.com/file')) {
+                        const match = renderUrl.match(/id=([^&/]+)/) || renderUrl.match(/\/d\/([^&/]+)/);
                         if (match && match[1]) {
-                            renderUrl = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+                            // Formato LH3: O mais compatível para PWAs e Mobile
+                            renderUrl = `https://lh3.googleusercontent.com/d/${match[1]}=w1000`;
                         }
                     }
-                    return `<img src="${renderUrl}" class="post-image" referrerpolicy="no-referrer">`;
+                    return `<img src="${renderUrl}" class="post-image">`;
                 })()}
                     <div class="post-footer">
                         <button class="post-action ${hasLiked ? 'liked' : ''}" onclick="likePost('${doc.id}')">
