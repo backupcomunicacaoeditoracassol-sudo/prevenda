@@ -24,14 +24,16 @@ try {
 // ⬇️ COLE AQUI a chave pública gerada no Firebase Console ⬇️
 const VAPID_KEY = 'BCOvoiBUvtP6OYZJfsUEkwF7lOBQMgpXQFxme86LBtcKhdmagPK3EXtXDYhQbBNDDjw6t8KotOlQo6_sIZyFrPw';
 
-// File Input Preview (Show selected filename)
-document.addEventListener('change', e => {
-    if (e.target.id === 'postImage') {
-        const file = e.target.files[0];
-        const preview = document.getElementById('imageNamePreview');
-        if (preview) preview.innerText = file ? `📎 ${file.name}` : "";
+function updateFileName(input) {
+    const file = input.files[0];
+    const preview = document.getElementById('imageNamePreview');
+    if (preview) {
+        preview.innerText = file ? `📎 ${file.name}` : "";
+        if (window.innerWidth <= 600) {
+            preview.style.display = file ? 'block' : 'none';
+        }
     }
-});
+}
 
 const auth = firebase.auth();
 const db = firebase.firestore();
