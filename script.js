@@ -851,8 +851,8 @@ async function initApp() {
         syncProgressFromCloud();
     }
 
-    // Restaurar aba ativa
-    const savedTab = localStorage.getItem('activeTab') || 'feed';
+    // Restaurar aba ativa (Padrão: Bastidores)
+    const savedTab = localStorage.getItem('activeTab') || 'challenges';
     switchTab(savedTab);
 
     // Iniciar listener de notificações em tempo real
